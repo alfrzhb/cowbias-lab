@@ -1,0 +1,23 @@
+# Planned experiment settings; consumed by the Stage 1+ implementation.
+project: cowbias-lab
+
+dataset:
+  image_size: 48
+  model_image_size: 32
+  train_size: 1000
+  val_size: 240
+  test_size: 480
+  baseline_majority_ratio: 0.97
+  treatment_background_ratio: 0.50
+  negative_class: horse
+
+training:
+  seeds: [42, 123, 2026]
+  epochs: 7
+  batch_size: 64
+  optimizer: adamw
+  learning_rate: 0.001
+  device: auto
+
+artifacts:
+  root: artifacts/runs
