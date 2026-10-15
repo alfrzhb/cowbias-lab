@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw, ImageOps
 
 from cowbias.data.splits import Source, keyed_seed
 
-GENERATOR_VERSION = "1.0"
+GENERATOR_VERSION = "1.1"
 
 
 def render_foreground(source: Source, size: int) -> Image.Image:

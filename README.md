@@ -40,7 +40,7 @@ Default output is `artifacts/runs/<UTC-time>-<unique-suffix>/`. Relative paths, 
 | Shared validation | 60 | 60 | 60 | 60 | 240 |
 | Shared test | 120 | 120 | 120 | 120 | 480 |
 
-`non_cow` is a horse surrogate. Every dataset is class-balanced. Baseline has a 97:3 majority/minority background ratio for each class. Treatment uses the **exact same 1,000 training foreground instances**, with the same pixels, pose, geometry, scale and placement; only background assignment changes. Assignment is randomized with exact 50:50 background quotas per label.
+`non_cow` is a horse surrogate. Every dataset is class-balanced. Baseline has a 97:3 majority/minority background ratio for each class. Treatment uses the **exact same 1,000 training foreground instances**, with the same pixels, pose, geometry, scale and placement; foreground record order is also identical, so matching future DataLoader shuffle seeds can preserve minibatch membership. Only background assignment changes. Assignment is randomized with exact 50:50 background quotas per label.
 
 There is one shared validation set and one shared test set per seed for both future models. Test has 240 unique foregrounds (120 per class), each on both grass and beach with one `pair_id`. Validation has 240 independent, unpaired foregrounds.
 
@@ -59,7 +59,7 @@ python scripts/prepare_data.py --config config/experiment.yaml \
   --audit artifacts/runs/my-stage1-run/seed_42/data
 ```
 
-Audit checks exact counts and all four groups, class balance, unique composite IDs and paths, source/family/hash overlap, catalog/manifest agreement, file readability and dimensions, source checksums, and source regeneration from the recorded seed. It reconstructs **every composite** from the original RGBA foreground and RGB background and compares its full pixels. Test masks and opaque foreground pixels must be identical within each pair, while visible background pixels must change. Soft alpha boundary pixels naturally blend with the new background; equality is verified against exact alpha compositing rather than requiring those blended pixels to stay unchanged.
+Audit checks exact counts and all four groups, class balance, unique composite IDs and paths, source/family/hash overlap, matching training foreground order, catalog/manifest agreement, file readability and dimensions, source checksums, and source regeneration from the recorded seed. It reconstructs **every composite** from the original RGBA foreground and RGB background and compares its full pixels. Test masks and opaque foreground pixels must be identical within each pair, while visible background pixels must change. Soft alpha boundary pixels naturally blend with the new background; equality is verified against exact alpha compositing rather than requiring those blended pixels to stay unchanged.
 
 `audit.json` records PASS or FAIL. A failing re-audit replaces a stale PASS with the actual failure and raises an informative error. Invalid datasets are never silently repaired. Inspect `contact_sheet.png` for representative held-out groups and true test pairs; automated integrity checks do not replace visual inspection.
 
@@ -120,7 +120,9 @@ from cowbias.data.dataset import ManifestDataset
 
 data = ManifestDataset(
     "artifacts/runs/my-stage1-run/seed_42/data",
-    split="train", variant="baseline", image_size=32,
+    split="train",
+    variant="baseline",
+    image_size=32,
 )
 sample = data[0]  # image: uint8 HWC; mask: uint8 HW; label: cow=1, non_cow=0
 ```

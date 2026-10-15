@@ -41,6 +41,7 @@ def test_audit_rejects_injected_leakage_and_invalidates_stale_pass(generated, tm
         ("missing_pair", "requires pair_id"),
         ("duplicate_id", "Duplicate composite image_id"),
         ("wrong_group", "Dataset group counts differ"),
+        ("training_order", "foreground record order differs"),
         ("one_member_pair", "number of counterfactual pairs"),
         ("corrupt_image", "Unreadable or invalid artifact"),
         ("wrong_mask_size", "dimensions"),
@@ -59,6 +60,8 @@ def test_audit_rejects_corruption(generated, tmp_path, mutation, message):
         rows[1]["image_id"] = rows[0]["image_id"]
     elif mutation == "wrong_group":
         rows[0]["background_label"] = "beach" if rows[0]["background_label"] == "grass" else "grass"
+    elif mutation == "training_order":
+        rows[0], rows[1] = rows[1], rows[0]
     elif mutation == "one_member_pair":
         test["pair_id"] = "orphan"
     elif mutation == "corrupt_image":

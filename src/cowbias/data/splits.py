@@ -88,8 +88,11 @@ def background_assignments(
                 if variant == "baseline":
                     majority = round(len(group) * config.baseline_majority_ratio)
                     grass_count = majority if label == "cow" else len(group) - majority
-                for rank, index in enumerate(order):
+                grass_indices = set(order[:grass_count])
+                # Preserve the same foreground record order across train variants.
+                # Equal DataLoader shuffle seeds can then produce equal minibatches.
+                for index, foreground in enumerate(group):
                     records.append(
-                        (group[index], "grass" if rank < grass_count else "beach", variant, "")
+                        (foreground, "grass" if index in grass_indices else "beach", variant, "")
                     )
     return records

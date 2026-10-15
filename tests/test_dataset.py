@@ -67,6 +67,9 @@ def test_actual_generation_and_audit(generated, small_config):
 def test_training_identity_and_test_geometry(generated):
     records = read_csv(generated / "manifest.csv", MANIFEST_FIELDS)
     assert len({r["image_id"] for r in records}) == len(records)
+    assert [r["foreground_id"] for r in records if r["variant"] == "baseline"] == [
+        r["foreground_id"] for r in records if r["variant"] == "treatment"
+    ]
     train = {
         v: {r["foreground_id"]: r for r in records if r["variant"] == v}
         for v in ("baseline", "treatment")

@@ -134,13 +134,19 @@ def _audit(root: Path, config: ExperimentConfig, seed: int) -> dict:
         for group, count in sorted(groups.items())
     ]
     training = {}
+    training_order = {}
     for variant in ("baseline", "treatment"):
         ids = [r["foreground_id"] for r in records if r["variant"] == variant]
         require(len(set(ids)) == d.train_size, f"{variant}: training foregrounds must occur once")
         training[variant] = set(ids)
+        training_order[variant] = ids
     require(
         training["baseline"] == training["treatment"],
         "Baseline/treatment training foreground identity sets differ",
+    )
+    require(
+        training_order["baseline"] == training_order["treatment"],
+        "Baseline/treatment foreground record order differs",
     )
     val_ids = [r["foreground_id"] for r in records if r["split"] == "val"]
     require(
@@ -272,6 +278,7 @@ def _audit(root: Path, config: ExperimentConfig, seed: int) -> dict:
         "unique_foregrounds": sum(s.kind == "foreground" for s in source_lookup.values()),
         "unique_background_assets": sum(s.kind == "background" for s in source_lookup.values()),
         "intentional_training_foreground_reuse": d.train_size,
+        "identical_training_foreground_order": True,
         "counterfactual": {
             "pairs": len(pairs),
             "unique_foregrounds": len(test_foregrounds),
