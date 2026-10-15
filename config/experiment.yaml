@@ -1,4 +1,4 @@
-# Planned experiment settings; consumed by the Stage 1+ implementation.
+# Dataset settings are validated and consumed by Stage 1; training is reserved.
 project: cowbias-lab
 
 dataset:
