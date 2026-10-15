@@ -59,7 +59,9 @@ python scripts/prepare_data.py --config config/experiment.yaml \
   --audit artifacts/runs/my-stage1-run/seed_42/data
 ```
 
-Audit checks exact counts and all four groups, class balance, unique composite IDs and paths, source/family/hash overlap, matching training foreground order, catalog/manifest agreement, file readability and dimensions, source checksums, and source regeneration from the recorded seed. It reconstructs **every composite** from the original RGBA foreground and RGB background and compares its full pixels. Test masks and opaque foreground pixels must be identical within each pair, while visible background pixels must change. Soft alpha boundary pixels naturally blend with the new background; equality is verified against exact alpha compositing rather than requiring those blended pixels to stay unchanged.
+Audit checks exact counts and all four groups, class balance, unique composite IDs and paths, source/family/hash overlap, matching training foreground order, catalog/manifest agreement, file readability and dimensions, source checksums, and source regeneration from the recorded seed. It independently replays `allocate_sources()` and `background_assignments()` from the saved configuration and seed, checking every record's identity/order, foreground, label, background category and asset, split, variant and pair ID. A background swap that preserves quotas and is correctly recomposited still fails if it disagrees with the seeded assignments.
+
+The audit reconstructs **every composite** from the original RGBA foreground and RGB background and compares its full pixels. Test masks and opaque foreground pixels must be identical within each pair, while visible background pixels must change. Soft alpha boundary pixels naturally blend with the new background; equality is verified against exact alpha compositing rather than requiring those blended pixels to stay unchanged.
 
 `audit.json` records PASS or FAIL. A failing re-audit replaces a stale PASS with the actual failure and raises an informative error. Invalid datasets are never silently repaired. Inspect `contact_sheet.png` for representative held-out groups and true test pairs; automated integrity checks do not replace visual inspection.
 
@@ -128,6 +130,60 @@ sample = data[0]  # image: uint8 HWC; mask: uint8 HW; label: cow=1, non_cow=0
 ```
 
 Held-out loading uses `variant="shared_eval"`. Training augmentation, normalization, tensor conversion and DataLoader integration belong to Stage 2.
+
+## Fresh remote session and Stage 2 dataset handoff
+
+Generated artifacts are disposable remote-session outputs, not files delivered by a Git clone. Regenerate them when the previous run directory is unavailable. In a fresh remote checkout, select the intended source revision and install the package:
+
+```bash
+git clone --branch feat/stage-1-dataset-foundation https://github.com/alfrzhb/cowbias-lab.git
+cd cowbias-lab
+python -m pip install -e '.[dev]'
+
+# Use a new run directory. Omit --seeds to generate all three configured seeds.
+python scripts/prepare_data.py --config config/experiment.yaml \
+  --seeds 42 --output artifacts/runs/stage2-data
+python scripts/prepare_data.py --config config/experiment.yaml \
+  --audit artifacts/runs/stage2-data/seed_42/data
+```
+
+After this feature branch is merged, use `main` or the intended dataset-producing commit instead. To reproduce an earlier run, restore its configuration and source revision and install the NumPy, Pillow and PyYAML versions recorded in its `run_config.json` (for example, the initial verified environment used NumPy 2.3.5, Pillow 12.3.0 and PyYAML 6.0.3). Record the Python version too. Pinning a code commit alone does not pin dependencies. The generator version and source identities are unchanged by audit hardening.
+
+Select the run directory **and seed explicitly**; do not silently select the newest folder or mix seeds across the two models. Validate before loading. This example selects data only and performs no training:
+
+```python
+from pathlib import Path
+
+from cowbias.config import load_config
+from cowbias.data.audit import audit_dataset
+from cowbias.data.dataset import ManifestDataset
+
+config = load_config("config/experiment.yaml")
+seed = 42
+data_root = Path("artifacts/runs/stage2-data") / f"seed_{seed}" / "data"
+audit_dataset(data_root, config, seed=seed)
+
+baseline = ManifestDataset(data_root, split="train", variant="baseline",
+                           image_size=config.dataset.model_image_size)
+treatment = ManifestDataset(data_root, split="train", variant="treatment",
+                            image_size=config.dataset.model_image_size)
+validation = ManifestDataset(data_root, split="val", variant="shared_eval",
+                             image_size=config.dataset.model_image_size)
+test = ManifestDataset(data_root, split="test", variant="shared_eval",
+                       image_size=config.dataset.model_image_size)
+```
+
+An absent/incomplete directory, wrong requested seed, mismatched saved configuration, unsupported generator version/origin, invalid relative path, source/pixel mismatch or seeded assignment mismatch fails the audit. `ManifestDataset` is a lightweight reader; it does not replace this explicit pre-load audit. Preserve the parent `run_config.json` together with each seed's complete `data/` directory if moving artifacts. Keep manifests, allocation, original sources and masks together, rather than copying only composite images. Paths remain relative to `data/`.
+
+The existing output-directory refusal also applies to remote reruns: choose another run directory instead of overwriting an earlier experiment. Dataset regeneration and loading require no cloud storage, Git LFS or previous developer-machine files.
+
+## Continuous integration and visual review
+
+`.github/workflows/ci.yml` runs on PRs targeting `main`, pushes to `main`, and manual dispatch. CPU-only Python 3.11 and 3.12 jobs install `.[dev]`, run pytest (including real dataset generation/audit), and run Ruff. Permissions are limited to `contents: read`; checkout does not persist credentials. Actions are pinned to stable release commits.
+
+CI uses the existing reduced integration fixture rather than generating all three full datasets per job. Successful jobs upload `dataset-review-python-3.11` and `dataset-review-python-3.12` artifacts, retained for seven days. Each contains the fixture contact sheet, audit JSON, group table and dataset configuration. Download these from the workflow run's **Artifacts** section. These are small synthetic previews with test-fixture counts, not the full experiment datasets and not a Stage 2 handoff.
+
+For full runs, review `artifacts/runs/<run_id>/seed_<seed>/data/contact_sheet.png` and `audit.json`. The existing sheet shows all four validation groups and actual paired test images, marks the experiment **SYNTHETIC**, and leaves exported sample pixels unchanged. Bulk images, masks, sources and checkpoints remain excluded from Git.
 
 ## Reproducibility and limitations
 

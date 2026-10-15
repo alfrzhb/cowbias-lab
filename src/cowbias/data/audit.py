@@ -11,7 +11,14 @@ from PIL import Image
 from cowbias.config import ExperimentConfig, config_from_dict
 from cowbias.data.dataset import MANIFEST_FIELDS, artifact_path, read_csv, write_csv
 from cowbias.data.generate import GENERATOR_VERSION, compose, render_background, render_foreground
-from cowbias.data.splits import BACKGROUNDS, OBJECTS, SPLITS, Source, allocate_sources
+from cowbias.data.splits import (
+    BACKGROUNDS,
+    OBJECTS,
+    SPLITS,
+    Source,
+    allocate_sources,
+    background_assignments,
+)
 
 SOURCE_FIELDS = (
     "source_id",
@@ -75,6 +82,46 @@ def _open(root: Path, relative: str, mode: str, size: int) -> Image.Image:
             return image.copy()
     except (OSError, ValueError) as exc:
         raise AuditError(f"Unreadable or invalid artifact {relative}: {exc}") from exc
+
+
+def _check_assignment_replay(
+    records: list[dict], sources: list[Source], config: ExperimentConfig, seed: int
+) -> None:
+    """Derive expected records from configuration and seed, never manifest claims.
+
+    Run after the existing structural/pixel checks, so a quota-preserving, correctly
+    recomposited intervention still has to match the original seeded experiment.
+    Record IDs and order are part of the generator contract; relative file names
+    can change as long as existing safe-path and reconstruction checks still pass.
+    """
+    backgrounds = {(s.foreground_id, s.label): s for s in sources if s.kind == "background"}
+    assignments = background_assignments(sources, config.dataset, seed)
+    require(
+        len(records) == len(assignments), "Deterministic assignment replay: record count differs"
+    )
+    for index, (row, (fg, category, variant, pair_id)) in enumerate(
+        zip(records, assignments, strict=True)
+    ):
+        bg = backgrounds[fg.source_id, category]
+        expected = {
+            "image_id": f"s{seed}-image-{index:06d}",
+            "foreground_id": fg.source_id,
+            "object_label": fg.label,
+            "background_label": category,
+            "background_asset_id": bg.source_id,
+            "split": fg.split,
+            "variant": variant,
+            "pair_id": pair_id,
+            "seed": str(seed),
+            "foreground_family_id": fg.family_id,
+            "background_family_id": bg.family_id,
+        }
+        for field, value in expected.items():
+            require(
+                row[field] == value,
+                f"Deterministic assignment replay mismatch at record {index} "
+                f"({row['image_id']}): {field} expected {value!r}, got {row[field]!r}",
+            )
 
 
 def _audit(root: Path, config: ExperimentConfig, seed: int) -> dict:
@@ -154,10 +201,11 @@ def _audit(root: Path, config: ExperimentConfig, seed: int) -> dict:
         "Validation foregrounds must be independent unique instances",
     )
     # Match the persisted pre-compositing allocation against the configured seed.
-    expected_sources = {s.source_id: s for s in allocate_sources(d, seed)}
+    allocated_sources = allocate_sources(d, seed)
+    expected_sources = {s.source_id: s for s in allocated_sources}
     allocation = json.loads((root / "source_allocation.json").read_text())
     require(
-        allocation == [s.as_dict() for s in allocate_sources(d, seed)],
+        allocation == [s.as_dict() for s in allocated_sources],
         "Pre-compositing source allocation differs from deterministic replay",
     )
     require(
@@ -248,6 +296,7 @@ def _audit(root: Path, config: ExperimentConfig, seed: int) -> dict:
             not np.array_equal(a[1][a[2] == 0], b[1][b[2] == 0]),
             f"Pair background did not change: {pair_id}",
         )
+    _check_assignment_replay(records, allocated_sources, config, seed)
     write_csv(root / "group_distribution.csv", distribution_rows)
     table = "| Dataset | cow/grass | cow/beach | non_cow/grass | non_cow/beach |\n"
     table += "|---|---:|---:|---:|---:|\n"
@@ -287,7 +336,11 @@ def _audit(root: Path, config: ExperimentConfig, seed: int) -> dict:
             "identical_opaque_foreground_pixels": True,
             "full_composite_reconstruction": True,
         },
-        "determinism": {"source_allocation_replayed": True, "all_source_pixels_regenerated": True},
+        "determinism": {
+            "source_allocation_replayed": True,
+            "all_source_pixels_regenerated": True,
+            "record_assignments_replayed": True,
+        },
         "readability": {
             "source_files": len(catalog),
             "image_files": len(records),
