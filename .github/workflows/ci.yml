@@ -1,4 +1,4 @@
-name: Stage 1 CI
+name: Dataset and training CI
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ jobs:
   test:
     name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -28,12 +28,28 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install
-        run: python -m pip install -e '.[dev]'
-      - name: Test (includes real generation and audit)
+      - name: Install CPU PyTorch and package
+        run: |
+          python -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[ml,dev]'
+      - name: Test (real generation, audit and paired training)
         run: python -m pytest -q
       - name: Lint
         run: ruff check .
+      - name: CPU training lifecycle smoke
+        run: |
+          python scripts/run_experiment.py --config config/experiment.yaml --smoke --device cpu --output artifacts/runs/ci-smoke
+          python scripts/verify_checkpoints.py --run artifacts/runs/ci-smoke
+      - name: Upload smoke checkpoints and provenance
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: training-smoke-python-${{ matrix.python-version }}
+          path: |
+            artifacts/runs/ci-smoke/*.*
+            artifacts/runs/ci-smoke/seed_*/*.*
+            artifacts/runs/ci-smoke/dataset_manifests/**
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload representative synthetic dataset review
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

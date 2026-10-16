@@ -2,7 +2,7 @@
 
 A reproducible synthetic experiment for studying spurious correlations between animal identity and background. The motivating case is a cow classifier that relies on grass and fails on a beach.
 
-**Status: Stage 1 implemented.** The package generates and audits actual images, masks, source catalogs and counterfactual pairs. Training, model evaluation, Grad-CAM and Streamlit remain future stages; no model accuracy is claimed.
+**Status: Stage 1 dataset foundation and Stage 2 CNN training implemented.** Training uses real PyTorch optimization and validation-only checkpoint selection. Final held-out evaluation, counterfactual prediction analysis, Grad-CAM and Streamlit remain future stages. Validation results are not final research conclusions.
 
 Requirements: [docs/PRD.md](docs/PRD.md). Implementation sequence: [docs/PLAN.md](docs/PLAN.md).
 
@@ -19,7 +19,7 @@ python -m pytest -q
 ruff check .
 ```
 
-Generation runs all configured seeds (`42`, `123`, `2026`), producing **2,720 composites per seed** and 8,160 in total. Core dependencies are NumPy, Pillow and PyYAML; later-stage dependencies are retained as optional `ml` and `app` extras. Stage 1 requires no GPU or PyTorch.
+Generation runs all configured seeds (`42`, `123`, `2026`), producing **2,720 composites per seed** and 8,160 in total. Core dependencies are NumPy, Pillow and PyYAML. Stage 2 adds the `ml` extra (PyTorch); `app` remains optional for a future stage. Stage 1 requires no GPU or PyTorch.
 
 ```bash
 python scripts/prepare_data.py --help
@@ -115,7 +115,7 @@ src/cowbias/data/
 tests/                      # Real generation, reproducibility and corruption tests
 ```
 
-Existing later-stage directories remain reserved. `ManifestDataset` provides framework-independent inspection, including optional model-size resizing:
+`ManifestDataset` provides framework-independent inspection, including optional model-size resizing:
 
 ```python
 from cowbias.data.dataset import ManifestDataset
@@ -129,14 +129,14 @@ data = ManifestDataset(
 sample = data[0]  # image: uint8 HWC; mask: uint8 HW; label: cow=1, non_cow=0
 ```
 
-Held-out loading uses `variant="shared_eval"`. Training augmentation, normalization, tensor conversion and DataLoader integration belong to Stage 2.
+Held-out loading uses `variant="shared_eval"`. Stage 2 wraps this reader with deterministic normalization, tensor conversion and DataLoaders; it forbids model access to the test split.
 
 ## Fresh remote session and Stage 2 dataset handoff
 
 Generated artifacts are disposable remote-session outputs, not files delivered by a Git clone. Regenerate them when the previous run directory is unavailable. In a fresh remote checkout, select the intended source revision and install the package:
 
 ```bash
-git clone --branch feat/stage-1-dataset-foundation https://github.com/alfrzhb/cowbias-lab.git
+git clone https://github.com/alfrzhb/cowbias-lab.git
 cd cowbias-lab
 python -m pip install -e '.[dev]'
 
@@ -147,7 +147,7 @@ python scripts/prepare_data.py --config config/experiment.yaml \
   --audit artifacts/runs/stage2-data/seed_42/data
 ```
 
-After this feature branch is merged, use `main` or the intended dataset-producing commit instead. To reproduce an earlier run, restore its configuration and source revision and install the NumPy, Pillow and PyYAML versions recorded in its `run_config.json` (for example, the initial verified environment used NumPy 2.3.5, Pillow 12.3.0 and PyYAML 6.0.3). Record the Python version too. Pinning a code commit alone does not pin dependencies. The generator version and source identities are unchanged by audit hardening.
+For an implementation under review, check out its PR branch; for reproduction, use the artifact's exact source revision. Restore its configuration and the NumPy, Pillow and PyYAML versions recorded in its `run_config.json` (for example, Stage 1 verification used NumPy 2.3.5, Pillow 12.3.0 and PyYAML 6.0.3). Record the Python version too. Pinning a code commit alone does not pin dependencies. The generator version and source identities are unchanged by Stage 2.
 
 Select the run directory **and seed explicitly**; do not silently select the newest folder or mix seeds across the two models. Validate before loading. This example selects data only and performs no training:
 
@@ -179,7 +179,7 @@ The existing output-directory refusal also applies to remote reruns: choose anot
 
 ## Continuous integration and visual review
 
-`.github/workflows/ci.yml` runs on PRs targeting `main`, pushes to `main`, and manual dispatch. CPU-only Python 3.11 and 3.12 jobs install `.[dev]`, run pytest (including real dataset generation/audit), and run Ruff. Permissions are limited to `contents: read`; checkout does not persist credentials. Actions are pinned to stable release commits.
+`.github/workflows/ci.yml` runs on PRs targeting `main`, pushes to `main`, and manual dispatch. CPU-only Python 3.11 and 3.12 jobs install CPU PyTorch and `.[ml,dev]`, run pytest (including actual generation, audit and paired optimization), run Ruff, then run the CPU smoke CLI and independent checkpoint verifier. Permissions are limited to `contents: read`; checkout does not persist credentials. Actions are pinned to stable release commits.
 
 CI uses the existing reduced integration fixture rather than generating all three full datasets per job. Successful jobs upload `dataset-review-python-3.11` and `dataset-review-python-3.12` artifacts, retained for seven days. Each contains the fixture contact sheet, audit JSON, group table and dataset configuration. Download these from the workflow run's **Artifacts** section. These are small synthetic previews with test-fixture counts, not the full experiment datasets and not a Stage 2 handoff.
 
@@ -194,3 +194,100 @@ Configuration rejects missing/unsupported fields, invalid labels, invalid intege
 These are small **synthetic illustrations**, not photographs. Shared drawing grammar, coat patterns and anatomy can be easier to learn than real animal identity. Good visual separation or a future successful synthetic experiment cannot establish real-world cow recognition, and source isolation does not establish generalization to unseen rendering styles. No training or model effectiveness claim is part of Stage 1.
 
 Academic context: Artificial Intelligence, Graduate Informatics, UIN Sunan Kalijaga — Task 3 (14 October 2026).
+
+## Stage 2: train and verify CNNs
+
+Install the ML extra. CPU-only wheels avoid downloading GPU dependencies:
+
+```bash
+python -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+python -m pip install -e '.[ml,dev]'
+python -m pytest -q
+ruff check .
+
+python scripts/run_experiment.py --config config/experiment.yaml --smoke
+python scripts/run_experiment.py --config config/experiment.yaml \
+  --seeds 42 123 2026 --device cpu --output artifacts/runs/my-training-run
+python scripts/verify_checkpoints.py --run artifacts/runs/my-training-run --require-full
+```
+
+Without `--data-run`, the training runner invokes the existing Stage 1 pipeline into `<training_run>/datasets/seed_<seed>/data`. With `--data-run artifacts/runs/my-stage1-run`, it uses that explicit run and re-audits every requested seed before training. It never guesses a latest directory. Missing files, incompatible configuration/seed/generator version, leakage, altered sources, or failed deterministic assignment replay stop training. Both dataset and training outputs refuse existing output directories. Keep all outputs under the ignored `artifacts/` tree.
+
+Smoke mode generates actual images: **200 examples per training arm, 16 shared validation and 16 test composites**, one configured seed and one epoch, on CPU by default. The test composites are audited only. Smoke artifacts carry `run_kind: smoke` and fail `--require-full`; they are not six-model experimental evidence. Full mode uses the central configuration unchanged: 1,000 examples per arm, seven epochs, batch 64, AdamW at 0.001, seeds 42/123/2026. `--device` and `--threads` (default 2) control resources. Use `--help` for the CLI contract. Failures return nonzero and preserve `failure.log`, partial histories and clearly marked incomplete diagnostic states.
+
+`models/cnn.py` defines one compact network: three 3×3 Conv/ReLU/2×2 MaxPool blocks with 16/32/64 channels, adaptive 4×4 pooling, a 64-unit ReLU classifier and **one binary logit**. It uses BCEWithLogitsLoss, `cow=1`, `non_cow=0`, and threshold logit ≥ 0. No pretrained weights, external downloads, dropout or batch normalization are used. The architecture is reconstructed from primitive metadata.
+
+`training/data.py` reads only audited train/validation manifests. Pillow bilinear resizing produces RGB 32×32; float32 CHW tensors are scaled by `(pixel/255 - 0.5)/0.5` per channel. There are no flips, crops, jitter, augmentation, class reweighting or oversampling. Background labels remain metadata for validation group accounting; the CNN receives only the three image channels.
+
+For each seed, `training/experiment.py` creates one initial state and loads its cloned tensors into independent baseline and treatment instances. Every initial tensor is checked for equality and hashed. Python, NumPy, PyTorch CPU/CUDA RNGs are reset before each arm; deterministic algorithms are enabled, cuDNN benchmarking and TF32 are disabled. Independent identically seeded DataLoader generators preserve foreground minibatch membership and order. Every consumed epoch permutation is hashed and compared. Both arms use the same optimizer defaults, loss, schedule, preprocessing, record count and shared validation order. The existing audit plus `training/treatment.py` verifies identical foreground identities/order/labels and masks/geometry. The Stage 1 background assignments are the only intervention.
+
+All seven epochs run. The policy declared before training selects **highest validation worst-group accuracy**, then highest overall validation accuracy, then earliest epoch. WGA is the minimum of all four group accuracies, with every denominator required nonzero. Histories include train/validation losses and accuracy, four validation group accuracies/counts, WGA, learning rate, epoch duration and consumed foreground order hash. Validation runs in eval/inference mode and cannot update weights. No test inference, test-based selection, final test metrics or counterfactual prediction analysis is implemented here.
+
+## Training artifacts and safe reloading
+
+```text
+artifacts/runs/<training_run>/
+  run_config.json              # Requested/effective config, seed list, code hashes
+  environment.json            # Python/dependency versions, hardware, determinism
+  requirements_freeze.txt      # Environment inventory; editable path is session-specific
+  dataset_generation.yaml     # Exact configuration for regenerating source datasets
+  dataset_references.json     # Per-seed IDs, manifest/config hashes, relative references
+  training.log
+  run_status.json
+  training_summary.json
+  verification.json
+  dataset_manifests/seed_42/   # Manifest, config, source catalog/allocation, audit, sheet
+  seed_42/
+    baseline.pt
+    treatment.pt
+    baseline_history.csv
+    treatment_history.csv
+    baseline_metadata.json
+    treatment_metadata.json
+    fairness.json             # Ordered foreground/validation IDs and invariant results
+    validation_probe.npz      # Four actual validation inputs, one per group, for reload
+  seed_123/...                # Full runs only
+  seed_2026/...               # Full runs only
+  datasets/...                # Only when generated here; excluded from upload bundle
+```
+
+Metadata records run kind, seed/variant, architecture, synthetic origin, dataset run and manifest/config SHA-256, generator version, initialization hash, training/optimizer settings, selected epoch/metrics/policy, dependency/hardware versions, Git revision/dirty flag and package source hashes. Sidecars add checkpoint/history SHA-256 and the reload verification result. Plain `state_dict` tensors and JSON primitives are serialized; loading uses `weights_only=True` and strict architecture/state validation. Only load trusted bundles and verify the recorded checksum:
+
+```python
+import json
+from pathlib import Path
+from cowbias.training.checkpoint import load_checkpoint
+
+folder = Path("artifacts/runs/my-training-run/seed_42")
+meta = json.loads((folder / "baseline_metadata.json").read_text())
+model, metadata = load_checkpoint(
+    folder / "baseline.pt", expected_sha256=meta["checkpoint_sha256"],
+    expected_seed=42, expected_variant="baseline", expected_run_kind="full",
+)
+# model expects the exact documented float32 [N, 3, 32, 32] preprocessing.
+```
+
+`verify_checkpoints.py --require-full` requires completed full-mode checkpoints for every configured seed, verifies all six checksums and histories, reconstructs fresh models, checks the declared epoch-selection policy and fairness metadata, and compares finite logits against saved validation probes (`atol=1e-6`, `rtol=1e-5`). These probes let an artifact recipient verify loading without the original filesystem or any test inference.
+
+## Durable remote handoff to Stage 3
+
+`.github/workflows/full-training.yml` generates and audits all three datasets, trains all six models on CPU and verifies them independently. It runs on explicitly scoped changes pushed to `feat/stage-2-cnn-training`, enabling the initial run before the workflow exists on `main`. After merging, **Actions → Full Stage 2 training → Run workflow** supports controlled manual runs. Standard PR CI only trains small fixtures and smoke runs.
+
+Successful full runs upload **`stage2-trained-models`**, retained for **90 days**. Open [Full Stage 2 training runs](https://github.com/alfrzhb/cowbias-lab/actions/workflows/full-training.yml), select a successful run at the intended code revision, and download the artifact from **Artifacts**. The run summary contains actual validation results; check `run_status.json` and `verification.json` after downloading. A failed run can also upload diagnostics, so an artifact's existence alone does not establish success. Archive the downloaded ZIP before retention expiry if longer preservation is needed.
+
+With GitHub CLI authentication in a future remote session:
+
+```bash
+gh run download <verified-run-id> --repo alfrzhb/cowbias-lab \
+  --name stage2-trained-models --dir artifacts/runs/downloaded-stage2
+python scripts/verify_checkpoints.py --run artifacts/runs/downloaded-stage2 --require-full
+
+# Restore the recorded source commit and dependency versions first, then regenerate data.
+python scripts/prepare_data.py \
+  --config artifacts/runs/downloaded-stage2/dataset_generation.yaml \
+  --output artifacts/runs/regenerated-stage1
+```
+
+The bundle contains all six checkpoints, histories, metadata, validation probes and small Stage 1 audit/reference snapshots; bulk datasets and model binaries stay out of ordinary Git commits. A source-path reference may point to a prior remote session, so regenerate instead of assuming that path still exists. Match regenerated manifest/config hashes to `dataset_references.json` and run the Stage 1 audit before Stage 3 inference. Snapshots retain source-level hashes and allocation for independent comparison.
+
+Reproduction requires matching code, configuration, seeds and dependency environment. Dataset identities are deterministic; bitwise image encoding and trained weights can change across Pillow/NumPy/PyTorch versions or hardware, even with deterministic algorithms enabled. `requirements_freeze.txt` is an inventory, not a portable editable-project path: install this repository separately and restore dependency versions from `environment.json`. Stage 3 will implement held-out group evaluation, counterfactual predictions and explainability; Stage 2 makes no final claim that the treatment mitigates background bias.
