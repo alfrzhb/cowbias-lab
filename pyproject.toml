@@ -17,6 +17,7 @@ dependencies = [
 [project.optional-dependencies]
 # Stage 2 uses native PyTorch tensors; torchvision/pretrained assets are unnecessary.
 ml = ["torch>=2.6"]
+eval = ["torch>=2.6", "matplotlib>=3.9"]
 app = ["streamlit>=1.35"]
 dev = [
   "pytest>=8.0",
@@ -26,6 +27,8 @@ dev = [
 [project.scripts]
 cowbias-prepare-data = "cowbias.data.pipeline:main"
 cowbias-train = "cowbias.training.experiment:main"
+cowbias-evaluate = "cowbias.evaluation.evaluator:main"
+cowbias-verify-evaluation = "cowbias.evaluation.verification:main"
 cowbias-verify-checkpoints = "cowbias.training.checkpoint:main"
 
 [tool.setuptools.packages.find]
