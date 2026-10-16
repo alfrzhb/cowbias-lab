@@ -2,7 +2,7 @@
 
 A reproducible synthetic experiment for studying spurious correlations between animal identity and background. The motivating case is a cow classifier that relies on grass and fails on a beach.
 
-**Status: Stage 1 dataset foundation and Stage 2 CNN training implemented.** Training uses real PyTorch optimization and validation-only checkpoint selection. Final held-out evaluation, counterfactual prediction analysis, Grad-CAM and Streamlit remain future stages. Validation results are not final research conclusions.
+**Status: Stages 1–3 implement audited data, frozen CNN training, held-out scientific evaluation, counterfactual analysis, genuine Grad-CAM and independent verification.** See [methodology](docs/methodology.md) and [held-out execution report](docs/stage3-results.md). Streamlit and the final academic PDF remain Stages 4–5. Validation scores below describe checkpoint selection, separately from held-out results.
 
 Requirements: [docs/PRD.md](docs/PRD.md). Implementation sequence: [docs/PLAN.md](docs/PLAN.md).
 
@@ -221,7 +221,7 @@ Smoke mode generates actual images: **200 examples per training arm, 16 shared v
 
 For each seed, `training/experiment.py` creates one initial state and loads its cloned tensors into independent baseline and treatment instances. Every initial tensor is checked for equality and hashed. Python, NumPy, PyTorch CPU/CUDA RNGs are reset before each arm; deterministic algorithms are enabled, cuDNN benchmarking and TF32 are disabled. Independent identically seeded DataLoader generators preserve foreground minibatch membership and order. Every consumed epoch permutation is hashed and compared. Both arms use the same optimizer defaults, loss, schedule, preprocessing, record count and shared validation order. The existing audit plus `training/treatment.py` verifies identical foreground identities/order/labels and masks/geometry. The Stage 1 background assignments are the only intervention.
 
-All seven epochs run. The policy declared before training selects **highest validation worst-group accuracy**, then highest overall validation accuracy, then earliest epoch. WGA is the minimum of all four group accuracies, with every denominator required nonzero. Histories include train/validation losses and accuracy, four validation group accuracies/counts, WGA, learning rate, epoch duration and consumed foreground order hash. Validation runs in eval/inference mode and cannot update weights. No test inference, test-based selection, final test metrics or counterfactual prediction analysis is implemented here.
+All seven epochs run. The policy declared before training selects **highest validation worst-group accuracy**, then highest overall validation accuracy, then earliest epoch. WGA is the minimum of all four group accuracies, with every denominator required nonzero. Histories include train/validation losses and accuracy, four validation group accuracies/counts, WGA, learning rate, epoch duration and consumed foreground order hash. Validation runs in eval/inference mode and cannot update weights. The Stage 2 training module performs no test inference, test-based selection or final test analysis. Stage 3 uses a separate evaluation-only test adapter.
 
 ## Training artifacts and safe reloading
 
@@ -290,7 +290,7 @@ python scripts/prepare_data.py \
 
 The bundle contains all six checkpoints, histories, metadata, validation probes and small Stage 1 audit/reference snapshots; bulk datasets and model binaries stay out of ordinary Git commits. A source-path reference may point to a prior remote session, so regenerate instead of assuming that path still exists. Match regenerated manifest/config hashes to `dataset_references.json` and run the Stage 1 audit before Stage 3 inference. Snapshots retain source-level hashes and allocation for independent comparison.
 
-Reproduction requires matching code, configuration, seeds and dependency environment. Dataset identities are deterministic; bitwise image encoding and trained weights can change across Pillow/NumPy/PyTorch versions or hardware, even with deterministic algorithms enabled. `requirements_freeze.txt` is an inventory, not a portable editable-project path: install this repository separately and restore dependency versions from `environment.json`. Stage 3 will implement held-out group evaluation, counterfactual predictions and explainability; Stage 2 makes no final claim that the treatment mitigates background bias.
+Reproduction requires matching code, configuration, seeds and dependency environment. Dataset identities are deterministic; bitwise image encoding and trained weights can change across Pillow/NumPy/PyTorch versions or hardware, even with deterministic algorithms enabled. `requirements_freeze.txt` is an inventory, not a portable editable-project path: install this repository separately and restore dependency versions from `environment.json`. Stage 3 consumes these frozen inputs for held-out group evaluation, counterfactual predictions and explainability. Stage 2 validation evidence alone makes no final claim that the treatment mitigates background bias.
 
 ## Verified Stage 2 execution
 
@@ -337,3 +337,106 @@ For Stage 3, restore the recorded source/dependencies, regenerate with
 `dataset_generation.yaml`, match manifest/config hashes, and re-audit the data
 before any held-out inference. Download before expiry for preservation beyond
 the configured Actions retention period.
+
+
+## Stage 3: scientific held-out evaluation
+
+Use Python 3.12 and the recorded CPU dependency versions. The original environment
+used Python 3.12.15; patch/hardware differences are recorded and checked with saved
+validation-probe numerical tolerances, not described as universal bitwise reproduction.
+
+```bash
+python -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+python -m pip install numpy==2.5.4 Pillow==12.3.0 PyYAML==6.0.3 matplotlib==3.10.8
+python -m pip install -e '.[eval,dev]'
+python -m pytest -q
+python -m ruff check .
+
+# Authorized gh authentication is needed for this private repository.
+# Checks workflow/artifact identity, expiry and original ZIP SHA-256 before extraction.
+python scripts/restore_stage2.py --archive artifacts/runs/stage2.zip \
+  --output artifacts/runs/downloaded-stage2
+
+# The existing Stage 2 verifier writes verification.json: verify a disposable copy
+# to preserve the exact input bundle. The evaluator does this automatically too.
+python -c "from pathlib import Path; from cowbias.evaluation.evaluator import verify_frozen_run; print(verify_frozen_run(Path('artifacts/runs/downloaded-stage2'), True))"
+
+python scripts/prepare_data.py \
+  --config artifacts/runs/downloaded-stage2/dataset_generation.yaml \
+  --seeds 42 123 2026 --output artifacts/runs/stage3-regenerated-data
+python scripts/verify_dataset_identity.py \
+  --training-run artifacts/runs/downloaded-stage2 \
+  --data-run artifacts/runs/stage3-regenerated-data --seeds 42 123 2026
+
+python scripts/evaluate_experiment.py \
+  --training-run artifacts/runs/downloaded-stage2 \
+  --bundle-archive artifacts/runs/stage2.zip \
+  --data-run artifacts/runs/stage3-regenerated-data \
+  --seeds 42 123 2026 --device cpu --output artifacts/runs/stage3-full
+python scripts/verify_evaluation.py --run artifacts/runs/stage3-full --require-full
+python scripts/summarize_evaluation.py --run artifacts/runs/stage3-full
+```
+
+`--bundle-archive` additionally verifies every extracted input file against the
+original archive, preserving the exact six models. Do not edit archived sidecars,
+verification files or configuration. Use a new output directory on every execution;
+existing output paths fail. `--help` documents explicit paths, seeds, device and
+smoke mode. Smoke mode requires one seed and uses actual fixture inference, with
+artifacts labeled smoke and rejected by `--require-full`. It never replaces full
+scientific findings. Routine CI runs independent fixtures and a training/evaluation
+smoke; it never downloads the full bundle.
+
+The dedicated [Full Stage 3 evaluation workflow](.github/workflows/full-evaluation.yml)
+uses read-only contents/actions permissions, restores the original models, regenerates
+and checks data identity, evaluates all six models, computes Grad-CAM for all 2,880
+predictions, independently verifies results, and uploads `stage3-scientific-results`
+for 90 days. A narrowly scoped push trigger on the Stage 3 feature branch supports
+its first execution before default-branch manual dispatch is available. After merge,
+manual Actions execution is supported. Failures preserve logs and incomplete status.
+
+The held-out distribution is 120 samples in each of four groups per seed. WGA is the
+minimum group accuracy. Confusion matrices use actual rows and predicted columns,
+class order `[non_cow,cow]`. Flip rate counts genuine foreground pairs whose predicted
+class changes across backgrounds. Read it together with **paired correctness** (both
+images correct), WGA and overall accuracy: a classifier can be stable and wrong.
+Disagreements explicitly distinguish corrected errors from new treatment errors.
+Cross-seed summaries use arithmetic mean and sample SD (`ddof=1`), with paired
+within-seed treatment-minus-baseline differences. Only three jointly varying data
+and initialization seeds are available; no significance claim is made.
+
+Grad-CAM targets the true class, using cow score `logit` and horse score `-logit` on
+the final convolutional ReLU. Baseline and treatment use identical images/targets.
+Every map is saved and independently peak-normalized; zero maps remain zero.
+Foreground mask shares and area-adjusted enrichment are descriptive localization
+measures. Zero-mass maps have undefined shares and explicit zero-map counts.
+Neither heatmap appearance nor foreground share alone proves causal independence.
+
+Each seed exports `predictions.csv`, `counterfactual_pairs.csv`,
+`model_disagreements.csv`, `metrics.json`, `attribution.csv`, `gradcam_examples.csv`,
+`test_inputs.npz`, model heatmap NPZs and figures A–F. Root `summary.json`/CSV contain
+per-seed results, mean/SD, paired differences and limitations. Original test RGB/mask
+arrays and model-resolution inputs are included without bulk training images.
+`source_references.json` identifies checkpoints, epochs, original artifact/source,
+data hashes, audits and training environment. `evaluation_config.json` freezes
+protocol and executed source. `evaluation_manifest.json` hashes immutable files;
+`figure_sources.json` traces plots to their saved scientific inputs.
+
+Stage 4 consumes this stable schema version 1 directly after verification. It can
+show predictions, real counterfactuals, figures and saved Grad-CAM without training
+or recomputing metrics. For live Grad-CAM, restore the referenced original checkpoint
+and the identified input. See [methodology and limitations](docs/methodology.md).
+
+Download the exact successful Stage 3 artifact listed in the execution report:
+
+```bash
+gh run download <verified-stage3-actions-run-id> --repo alfrzhb/cowbias-lab \
+  --name stage3-scientific-results --dir artifacts/runs/downloaded-stage3
+# Upload contains a run directory plus the external execution/retrieval logs.
+python scripts/verify_evaluation.py \
+  --run artifacts/runs/downloaded-stage3/stage3-full-<run-id>-<attempt> --require-full
+```
+
+Preserve the ZIP before its recorded expiry for longer retention. These are synthetic
+horse/cow illustrations with two controlled backgrounds; performance on photographs
+and other species or styles remains untested. The academic PDF is intentionally not
+produced in Stage 3.
