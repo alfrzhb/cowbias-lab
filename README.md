@@ -440,3 +440,23 @@ Preserve the ZIP before its recorded expiry for longer retention. These are synt
 horse/cow illustrations with two controlled backgrounds; performance on photographs
 and other species or styles remains untested. The academic PDF is intentionally not
 produced in Stage 3.
+
+
+The verified full Stage 3 run is [38874819983](https://github.com/alfrzhb/cowbias-lab/actions/runs/38874819983),
+evaluation ID `stage3-full-38874819983-1`, at source `f4c517e64c20ed3498a656ff31dcb67bdbc5e69d`.
+[Download stage3-scientific-results](https://github.com/alfrzhb/cowbias-lab/actions/runs/38874819983/artifacts/12035480745)
+(90 days; expires 14 January 2027, 08:36:30 UTC). ZIP SHA-256:
+`75b42453cde76bb6b5e7f5c1db903908b592439949a324e79f8ff17186dbb0d4`.
+All six held-out evaluations, fresh-download independent verification, 136 tests,
+Ruff and Python 3.11/3.12 CI PASS. Mean ± sample SD WGA is **18.33 ± 25.54% baseline**
+and **98.61 ± 1.73% treatment**. Treatment corrects 522 errors and introduces one new
+error. Attribution is mixed; seed 42 mean foreground share decreases and baseline
+has many zero maps. Full tables, failures, pair statistics, explanation caveats,
+provenance and all 18 gates are in the [execution report](docs/stage3-results.md).
+
+```bash
+gh run download 38874819983 --repo alfrzhb/cowbias-lab \
+  --name stage3-scientific-results --dir artifacts/runs/downloaded-stage3
+python scripts/verify_evaluation.py \
+  --run artifacts/runs/downloaded-stage3/stage3-full-38874819983-1 --require-full
+```

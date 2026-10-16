@@ -77,3 +77,37 @@ The v1 interface for Stage 4 is `seed_<seed>/predictions.csv`, `counterfactual_p
 Internal threats include generator artifacts, soft-alpha compositing, remaining correlations in finite randomized assignments, coarse Grad-CAM localization and dependence within foreground pairs. Fairness controls and source replay reduce these threats but cannot eliminate all shortcuts. External threats include a shared procedural renderer, two fixed landscape categories, one horse comparator and only three jointly varying seeds. High synthetic accuracy is insufficient evidence of real-world understanding.
 
 Actual held-out results, run IDs, scientific interpretation, workflow/artifact links and completion evidence are recorded in [stage3-results.md](stage3-results.md) after execution. These results must remain distinct from Stage 2 validation selection scores. Hypothesis support is judged from WGA, group performance, paired correctness and probability sensitivity together; no metric is changed after observing the test results.
+
+
+## Observed Stage 3 held-out evidence
+
+The first full run `stage3-full-38874819983-1` at source
+`f4c517e64c20ed3498a656ff31dcb67bdbc5e69d` completed all six frozen evaluations
+without model changes or full-evaluation reruns. Its [Actions run](https://github.com/alfrzhb/cowbias-lab/actions/runs/38874819983)
+and [scientific artifact 12035480745](https://github.com/alfrzhb/cowbias-lab/actions/runs/38874819983/artifacts/12035480745)
+contain 2,880 predictions, 1,440 model-pair evaluations and 2,880 genuine Grad-CAM maps.
+Both hosted verification and a fresh downloaded-bundle verification PASS.
+
+| Seed | Baseline accuracy | Treatment accuracy | Baseline WGA | Treatment WGA |
+|---|---:|---:|---:|---:|
+| 42 | 0.854167 | 0.989583 | 0.475000 | 0.966667 |
+| 123 | 0.543750 | 1.000000 | 0.075000 | 1.000000 |
+| 2026 | 0.502083 | 0.995833 | 0.000000 | 0.991667 |
+
+Treatment improves WGA, overall accuracy, paired correctness and probability stability
+for all three seeds. It corrects 522 images but introduces one new error on seed 42;
+horse/beach accuracy for that seed drops from 120/120 to 119/120. One treatment pair
+remains wrong on both backgrounds. Mean ± sample SD WGA is 18.3333 ± 25.5359% for
+baseline versus 98.6111 ± 1.7347% for treatment. These three jointly varying seeds
+support a controlled synthetic finding, not statistical significance or real-photo
+generalization.
+
+Attribution is mixed: seed 42 foreground share decreases from 27.13% to 19.17%,
+whereas seeds 123/2026 increase. Baseline has 202/78/88 zero true-target maps;
+treatment has none. Nonzero-map conditional means therefore use different image
+sets and are not paired causal estimates. Some treatment cow maps highlight upper
+background regions. The explanation evidence does not establish a uniform shift
+toward animal-only localization. Counterfactual improvements remain the more direct
+measured evidence of reduced background sensitivity here. All unfavorable cases,
+zero maps and residual probability shifts are retained in [stage3-results.md](stage3-results.md)
+and the original artifacts.
