@@ -40,9 +40,9 @@ Default output is `artifacts/runs/<UTC-time>-<unique-suffix>/`. Relative paths, 
 | Shared validation | 60 | 60 | 60 | 60 | 240 |
 | Shared test | 120 | 120 | 120 | 120 | 480 |
 
-`non_cow` is a horse surrogate. Every dataset is class-balanced. Baseline has a 97:3 majority/minority background ratio for each class. Treatment uses the **exact same 1,000 training foreground instances**, with the same pixels, pose, geometry, scale and placement; foreground record order is also identical, so matching future DataLoader shuffle seeds can preserve minibatch membership. Only background assignment changes. Assignment is randomized with exact 50:50 background quotas per label.
+`non_cow` is a horse surrogate. Every dataset is class-balanced. Baseline has a 97:3 majority/minority background ratio for each class. Treatment uses the **exact same 1,000 training foreground instances**, with the same pixels, pose, geometry, scale and placement; foreground record order is also identical, so matching DataLoader shuffle seeds can preserve minibatch membership. Only background assignment changes. Assignment is randomized with exact 50:50 background quotas per label.
 
-There is one shared validation set and one shared test set per seed for both future models. Test has 240 unique foregrounds (120 per class), each on both grass and beach with one `pair_id`. Validation has 240 independent, unpaired foregrounds.
+There is one shared validation set and one shared test set per seed for both models. Test has 240 unique foregrounds (120 per class), each on both grass and beach with one `pair_id`. Validation has 240 independent, unpaired foregrounds.
 
 The renderer varies coat palette, patches, body proportions, legs/pose, scale, placement, orientation and rotation. Both species share nuisance-parameter distributions and the same rendering/compositing method. Landscapes vary texture, color, lighting, horizon, clouds and shoreline or vegetation. Image files contain no text, watermarks or embedded class metadata. Contact sheet captions are outside the sample pixels.
 
@@ -291,3 +291,49 @@ python scripts/prepare_data.py \
 The bundle contains all six checkpoints, histories, metadata, validation probes and small Stage 1 audit/reference snapshots; bulk datasets and model binaries stay out of ordinary Git commits. A source-path reference may point to a prior remote session, so regenerate instead of assuming that path still exists. Match regenerated manifest/config hashes to `dataset_references.json` and run the Stage 1 audit before Stage 3 inference. Snapshots retain source-level hashes and allocation for independent comparison.
 
 Reproduction requires matching code, configuration, seeds and dependency environment. Dataset identities are deterministic; bitwise image encoding and trained weights can change across Pillow/NumPy/PyTorch versions or hardware, even with deterministic algorithms enabled. `requirements_freeze.txt` is an inventory, not a portable editable-project path: install this repository separately and restore dependency versions from `environment.json`. Stage 3 will implement held-out group evaluation, counterfactual predictions and explainability; Stage 2 makes no final claim that the treatment mitigates background bias.
+
+## Verified Stage 2 execution
+
+The CPU experiment at source commit `881be87ef2d83100b51bfb069e1fa75097eb9688`
+completed all six seven-epoch training runs. The retained epochs below follow the
+predeclared WGA → overall accuracy → earliest epoch policy. These are **validation**
+results used for selection, not held-out test results or a final mitigation claim.
+
+- [Full training run 38827143763](https://github.com/alfrzhb/cowbias-lab/actions/runs/38827143763): SUCCESS.
+- [Download stage2-trained-models](https://github.com/alfrzhb/cowbias-lab/actions/runs/38827143763/artifacts/12015781574): 3,631,083-byte ZIP; upload and fresh download verified.
+- Artifact retention: 90 days; GitHub reports expiry **14 January 2027 at 00:02 UTC**.
+- ZIP SHA-256: `d99ae16c94d57810e7cad11d25f62be061df943202ba4b9a59d10721012597be`.
+- [Python 3.11 and 3.12 CI](https://github.com/alfrzhb/cowbias-lab/actions/runs/38827190926): **82 tests passed per job**, Ruff passed, real CPU smoke and checkpoint verification passed.
+- Downloaded bundle reverified independently: all six checkpoint/history checksums, metadata, validation-only selection, fairness controls and fresh-model validation probe predictions PASS.
+- Dataset audits: all three seeds PASS, with deterministic source/assignment replay and zero cross-split source leakage.
+- Training environment: Python 3.12.15, PyTorch 2.14.1+cpu, NumPy 2.5.4, Pillow 12.3.0, PyYAML 6.0.3; two CPU threads. Full versions and source hashes are in the bundle.
+
+| Seed | Model | Selected epoch | Validation loss | Validation accuracy | Validation WGA | Reload |
+|---|---|---:|---:|---:|---:|---|
+| 42 | baseline | 7 | 0.608923 | 0.820833 | 0.350000 | PASS |
+| 42 | treatment | 4 | 0.025483 | 0.995833 | 0.983333 | PASS |
+| 123 | baseline | 7 | 0.909820 | 0.545833 | 0.050000 | PASS |
+| 123 | treatment | 7 | 0.003250 | 1.000000 | 1.000000 | PASS |
+| 2026 | baseline | 1 | 1.840064 | 0.500000 | 0.000000 | PASS |
+| 2026 | treatment | 4 | 0.046593 | 1.000000 | 1.000000 | PASS |
+
+Seed 2026 baseline selected epoch 1 because all seven epochs tied on both WGA
+and overall accuracy; lower validation loss is deliberately not a tie-breaker.
+The treatment's observed validation scores do not establish held-out robustness.
+
+Retrieve the exact verified bundle in a new remote session:
+
+```bash
+gh run download 38827143763 --repo alfrzhb/cowbias-lab \
+  --name stage2-trained-models --dir artifacts/runs/downloaded-stage2
+python scripts/verify_checkpoints.py --run artifacts/runs/downloaded-stage2 --require-full
+```
+
+The bundle's training run ID is `stage2-full`; it is disambiguated by the Actions
+run ID and source commit above. Checkpoint files are under
+`seed_<seed>/{baseline,treatment}.pt`. Exact checkpoint SHA-256 values are in
+`verification.json`, `training_summary.json` and each model metadata sidecar.
+For Stage 3, restore the recorded source/dependencies, regenerate with
+`dataset_generation.yaml`, match manifest/config hashes, and re-audit the data
+before any held-out inference. Download before expiry for preservation beyond
+the configured Actions retention period.
