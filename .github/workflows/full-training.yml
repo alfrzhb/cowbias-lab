@@ -1,0 +1,50 @@
+name: Full Stage 2 training
+
+on:
+  # Enables the initial run before this workflow reaches the default branch.
+  push:
+    branches: [feat/stage-2-cnn-training]
+    paths:
+      - '.github/workflows/full-training.yml'
+      - 'src/cowbias/models/**'
+      - 'src/cowbias/training/**'
+      - 'scripts/run_experiment.py'
+      - 'scripts/verify_checkpoints.py'
+      - 'config/experiment.yaml'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  train:
+    name: Six CPU checkpoints
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Install CPU training environment
+        run: |
+          python -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[ml,dev]'
+      - name: Generate, audit and train all three seeds
+        run: python scripts/run_experiment.py --config config/experiment.yaml --seeds 42 123 2026 --device cpu --output artifacts/runs/stage2-full
+      - name: Independently reload and verify all six checkpoints
+        run: python scripts/verify_checkpoints.py --run artifacts/runs/stage2-full --require-full --github-summary
+      - name: Persist checkpoints, histories, provenance and failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: stage2-trained-models
+          path: |
+            artifacts/runs/stage2-full/*.*
+            artifacts/runs/stage2-full/seed_*/*.*
+            artifacts/runs/stage2-full/dataset_manifests/**
+          if-no-files-found: error
+          retention-days: 90
