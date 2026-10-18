@@ -44,11 +44,18 @@ def safe_extract(archive, output):
             name = e.filename.rstrip("/") if e.is_dir() else e.filename
             p = PurePosixPath(name)
             mode = stat.S_IFMT(e.external_attr >> 16)
-            if (not name or "\\" in name or ":" in name or p.is_absolute()
-                    or any(x in ("", ".", "..") for x in name.split("/"))
-                    or str(p) in seen or mode not in (0, stat.S_IFREG, stat.S_IFDIR)
-                    or e.flag_bits & 1 or e.file_size > MAX_FILE
-                    or e.file_size > 1024 * max(e.compress_size, 1)):
+            if (
+                not name
+                or "\\" in name
+                or ":" in name
+                or p.is_absolute()
+                or any(x in ("", ".", "..") for x in name.split("/"))
+                or str(p) in seen
+                or mode not in (0, stat.S_IFREG, stat.S_IFDIR)
+                or e.flag_bits & 1
+                or e.file_size > MAX_FILE
+                or e.file_size > 1024 * max(e.compress_size, 1)
+            ):
                 raise ValueError(f"Unsafe or duplicate ZIP member: {e.filename!r}")
             seen.add(str(p))
         output.mkdir(parents=True, exist_ok=False)
@@ -73,17 +80,20 @@ def prepare_run(root, *, fixture=False, archive_hash=None):
     if fixture:
         if cfg["run_kind"] != "smoke":
             raise ValueError("Development fixtures must be genuine smoke evaluations")
-    elif (archive_hash != ARCHIVE_SHA256 or cfg["run_id"] != RUN_ID
-          or cfg["code_revision"] != SOURCE):
+    elif (
+        archive_hash != ARCHIVE_SHA256 or cfg["run_id"] != RUN_ID or cfg["code_revision"] != SOURCE
+    ):
         raise ValueError("Full demo requires pinned original Stage 3 evidence")
     report = verify_evaluation(root, require_full=not fixture)
     result = {
-        "schema_version": 1, "run_id": cfg["run_id"],
+        "schema_version": 1,
+        "run_id": cfg["run_id"],
         "context": "development_fixture" if fixture else "verified_full",
         "original_archive_sha256": archive_hash,
         "workflow_run_id": None if fixture else WORKFLOW,
         "artifact_id": None if fixture else ARTIFACT,
-        "verification": report, "prepared_utc": datetime.now(UTC).isoformat(),
+        "verification": report,
+        "prepared_utc": datetime.now(UTC).isoformat(),
         "files": {str(p.relative_to(root)): digest(p) for p in root.rglob("*") if p.is_file()},
     }
     with receipt.open("x") as f:
@@ -94,7 +104,9 @@ def prepare_run(root, *, fixture=False, archive_hash=None):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--archive", type=Path, help="Existing original ZIP; otherwise use authorized gh")
+    parser.add_argument(
+        "--archive", type=Path, help="Existing original ZIP; otherwise use authorized gh"
+    )
     parser.add_argument("--output", type=Path, default=Path("artifacts/runs/downloaded-stage3"))
     parser.add_argument("--fixture-run", type=Path, help="Explicit genuine smoke fixture")
     args = parser.parse_args(argv)
@@ -112,16 +124,26 @@ def main(argv=None):
                 archive = args.archive
                 if archive is None:
                     endpoint = f"repos/{REPO}/actions/artifacts/{ARTIFACT}"
-                    info = json.loads(subprocess.check_output(
-                        ["gh", "api", endpoint], text=True, stderr=subprocess.PIPE))
-                    if (info["workflow_run"]["id"] != WORKFLOW
-                            or info["name"] != "stage3-scientific-results" or info["expired"]
-                            or info["digest"] != "sha256:" + ARCHIVE_SHA256):
+                    info = json.loads(
+                        subprocess.check_output(
+                            ["gh", "api", endpoint], text=True, stderr=subprocess.PIPE
+                        )
+                    )
+                    if (
+                        info["workflow_run"]["id"] != WORKFLOW
+                        or info["name"] != "stage3-scientific-results"
+                        or info["expired"]
+                        or info["digest"] != "sha256:" + ARCHIVE_SHA256
+                    ):
                         raise ValueError("Actions workflow/artifact identity mismatch")
                     archive = temp / "original.zip"
                     with archive.open("xb") as f:
-                        subprocess.run(["gh", "api", endpoint + "/zip"], stdout=f,
-                                       stderr=subprocess.PIPE, check=True)
+                        subprocess.run(
+                            ["gh", "api", endpoint + "/zip"],
+                            stdout=f,
+                            stderr=subprocess.PIPE,
+                            check=True,
+                        )
                 elif not archive.is_file():
                     raise ValueError(f"Original archive not found: {archive}")
                 archive_hash = digest(archive)
@@ -133,8 +155,16 @@ def main(argv=None):
                 staging.rename(args.output)
         print(json.dumps({k: v for k, v in result.items() if k != "files"}, indent=2))
         return 0
-    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError,
-            zipfile.BadZipFile, EOFError, ImportError) as exc:
+    except (
+        OSError,
+        ValueError,
+        KeyError,
+        TypeError,
+        subprocess.SubprocessError,
+        zipfile.BadZipFile,
+        EOFError,
+        ImportError,
+    ) as exc:
         if isinstance(exc, (subprocess.SubprocessError, FileNotFoundError)):
             message = "GitHub retrieval unavailable. Install/authenticate gh with repository/actions read access, or supply --archive."
         elif isinstance(exc, ImportError):
