@@ -528,6 +528,7 @@ def explainability(data, token):
     ]
     choose_valid(st.session_state, "export_file", names)
     name = st.selectbox("Evidence file", names, key="export_file")
+    st.caption(f"Export source: {name}")
     st.download_button(
         "Download scientific file",
         data.run.export(name),
@@ -541,6 +542,7 @@ def explainability(data, token):
     if figures:
         choose_valid(st.session_state, "figure", figures)
         name = st.selectbox("Scientific figure", figures, key="figure")
+        st.caption(f"Figure source: {name}")
         raw = data.run.export(name)
         st.image(raw, caption="Original verified Stage 3 figure · " + name)
         st.download_button(

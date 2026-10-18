@@ -252,6 +252,7 @@ def review(root, output, fixture=False):
                     page, "Download baseline overlay PNG", downloads / "zero-baseline-overlay.png"
                 )
                 with Image.open(io.BytesIO(raw)) as img:
+                    assert img.format == "PNG"
                     meta = json.loads(img.info["CowBias provenance"])
                     assert (
                         meta["image_id"] == image
@@ -261,6 +262,7 @@ def review(root, output, fixture=False):
                     assert np.array_equal(
                         np.array(img), image_array(load_arrays(data), image, "images")
                     )
+                with Image.open(io.BytesIO(raw)) as img:
                     img.verify()
                 report["exports"].append(
                     "zero-map PNG equals original model input; full target/provenance metadata"
@@ -275,6 +277,7 @@ def review(root, output, fixture=False):
                 for suffix in ("predictions.csv", "metrics.json"):
                     name = f"seed_{seed}/{suffix}"
                     select(page, "Evidence file", name)
+                    expect(page.get_by_text(f"Export source: {name}", exact=True)).to_be_visible()
                     # Native download button is rendered with the selected verified file bytes.
                     settle(page)
                     raw = save_download(
@@ -292,6 +295,7 @@ def review(root, output, fixture=False):
                     report["exports"].append(name + ": downloaded, reopened, exact source bytes")
                 figure = f"seed_{seed}/figures/accuracy_by_group.png"
                 select(page, "Scientific figure", figure)
+                expect(page.get_by_text(f"Figure source: {figure}", exact=True)).to_be_visible()
                 settle(page)
                 raw = save_download(
                     page, "Download scientific figure PNG", downloads / f"seed-{seed}-figure.png"
@@ -303,13 +307,9 @@ def review(root, output, fixture=False):
             for width in (1440, 1280, 390):
                 page.set_viewport_size({"width": width, "height": 1000})
                 sidebar = page.get_by_test_id("stSidebar")
-                close = page.get_by_test_id("stSidebarCollapseButton")
-                if (
-                    width == 390
-                    and sidebar.get_attribute("data-collapsed") == "false"
-                    and close.is_visible()
-                ):
-                    close.click()
+                if width == 390:
+                    # Native responsive collapse is asynchronous after a viewport change.
+                    expect(sidebar).to_have_attribute("data-collapsed", "true")
                 for name in HEADINGS:
                     tab(page, name)
                     assert not page.evaluate(
