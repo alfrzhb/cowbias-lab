@@ -122,14 +122,15 @@ def selection(page, seed, *, image=None, outcome=None, bg=None, pair=None):
 
 
 def capture(page, section, path):
-    if section in ("Dataset Explorer", "Model Comparison", "Explainability & Export"):
-        page.get_by_test_id("stImage").first.scroll_into_view_if_needed()
+    if section == "Model Comparison":
+        target = page.get_by_role("heading", name=re.compile("True label:"))
+    elif section in ("Dataset Explorer", "Explainability & Export"):
+        target = page.get_by_test_id("stImage").first
     elif section == "Evaluation":
-        page.get_by_role(
-            "heading", name="Accuracy in all four groups", exact=True
-        ).scroll_into_view_if_needed()
+        target = page.get_by_role("heading", name="Accuracy in all four groups", exact=True)
     else:
-        page.get_by_role("heading", name="CowBias Lab", exact=True).scroll_into_view_if_needed()
+        target = page.get_by_role("heading", name="CowBias Lab", exact=True)
+    target.evaluate("el => el.scrollIntoView({block: 'start'})")
     page.screenshot(path=str(path), full_page=True)
 
 
@@ -222,11 +223,20 @@ def review(root, output, fixture=False):
                             for m in ("baseline", "treatment")
                         ]
                         expect(page.get_by_test_id("stMetricValue")).to_have_text(expected)
-                    if outcome == "baseline_only":
+                    if outcome in ("baseline_only", "treatment_only"):
+                        case_bg = next(
+                            bg
+                            for bg, i in data.members[pair].items()
+                            if data.disagreements[i]["outcome"] == outcome
+                        )
+                        page.get_by_test_id("stRadio").get_by_text(
+                            case_bg.title(), exact=True
+                        ).click()
+                        selection(page, seed, image=data.image_id(pair, case_bg))
                         capture(
                             page,
                             "Model Comparison",
-                            output / f"seed-{seed}-new-treatment-error.png",
+                            output / f"seed-{seed}-{outcome}.png",
                         )
                     report["checks"].append(
                         f"seed {seed}/{outcome}: foreground stable; both exact predictions"
@@ -310,6 +320,35 @@ def review(root, output, fixture=False):
                 if width == 390:
                     # Native responsive collapse is asynchronous after a viewport change.
                     expect(sidebar).to_have_attribute("data-collapsed", "true")
+                    page.get_by_role("button", name="Expand sidebar", exact=True).click()
+                    expect(sidebar).to_have_attribute("data-collapsed", "false")
+                    mobile_seed = run.seeds[-1]
+                    select(page, "Dataset seed", str(mobile_seed))
+                    expect(
+                        page.get_by_text(
+                            re.compile(f"Active seed {mobile_seed} · Verification PASS")
+                        )
+                    ).to_be_visible()
+                    settle(page)
+                    page.get_by_role("button", name="Collapse sidebar", exact=True).click()
+                    expect(sidebar).to_have_attribute("data-collapsed", "true")
+                    tab(page, "Model Comparison")
+                    pair = page.get_by_role(
+                        "combobox", name="Foreground pair", exact=True
+                    ).input_value()
+                    page.get_by_test_id("stRadio").get_by_text("Beach", exact=True).click()
+                    mobile_data = load_seed(run, mobile_seed)
+                    mobile_image = mobile_data.image_id(pair, "beach")
+                    selection(page, mobile_seed, image=mobile_image, pair=pair, bg="beach")
+                    expect(page.get_by_test_id("stMetricValue")).to_have_text(
+                        [
+                            f"{mobile_data.prediction(mobile_image, m)['prob_cow']:.4%}"
+                            for m in ("baseline", "treatment")
+                        ]
+                    )
+                    report["checks"].append(
+                        "390px sidebar open/seed change/close and exact counterfactual predictions"
+                    )
                 for name in HEADINGS:
                     tab(page, name)
                     assert not page.evaluate(
