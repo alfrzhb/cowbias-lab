@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main]
+    branches: [main, feat/stage-4-streamlit-dashboard]
   workflow_dispatch:
 
 permissions:
@@ -31,7 +31,7 @@ jobs:
       - name: Install CPU PyTorch and package
         run: |
           python -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
-          python -m pip install -e '.[ml,eval,dev]'
+          python -m pip install -e '.[ml,eval,ui,dev]'
       - name: Test (real generation, audit and paired training)
         run: python -m pytest -q
       - name: Lint
@@ -50,6 +50,29 @@ jobs:
           name: evaluation-smoke-python-${{ matrix.python-version }}
           path: artifacts/runs/ci-evaluation-smoke/**
           if-no-files-found: error
+          retention-days: 7
+      - name: Genuine dashboard fixture and UI acceptance
+        run: |
+          python scripts/prepare_dashboard.py --fixture-run artifacts/runs/ci-evaluation-smoke
+          python scripts/verify_dashboard.py --run artifacts/runs/ci-evaluation-smoke --fixture --output artifacts/dashboard-fixture-review/consistency.json
+          COWBIAS_EVAL_ROOT=artifacts/runs/ci-evaluation-smoke COWBIAS_FIXTURE=1 python -c "from streamlit.testing.v1 import AppTest; a=AppTest.from_file('app/streamlit_app.py', default_timeout=30).run(); assert not a.exception and len(a.tabs)==5"
+      - name: Streamlit HTTP startup smoke
+        run: |
+          COWBIAS_EVAL_ROOT=artifacts/runs/ci-evaluation-smoke COWBIAS_FIXTURE=1 python -m streamlit run app/streamlit_app.py --server.port 8501 > artifacts/dashboard-fixture-review/startup.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8501/_stcore/health; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Upload dashboard fixture diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dashboard-fixture-python-${{ matrix.python-version }}
+          path: artifacts/dashboard-fixture-review/**
+          if-no-files-found: warn
           retention-days: 7
       - name: Upload smoke checkpoints and provenance
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

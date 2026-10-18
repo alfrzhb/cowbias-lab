@@ -130,6 +130,7 @@ def controls(data):
     )
     if not options:
         st.info("No observed pairs match this category for the active seed. Choose another filter.")
+        st.caption(f"Empty selection · seed={data.seed} · outcome={st.session_state.outcome}")
         return None
     choose_valid(st.session_state, "pair", options)
     pair = st.selectbox("Foreground pair", options, key="pair")
@@ -146,7 +147,9 @@ def controls(data):
         "Background", ["grass", "beach"], key="background", horizontal=True, format_func=str.title
     )
     image = data.image_id(pair, bg)
-    st.caption(f"Selection · seed={data.seed} · pair={pair} · background={bg} · image={image}")
+    st.caption(
+        f"Selection · seed={data.seed} · pair={pair} · background={bg} · image={image} · outcome={st.session_state.outcome}"
+    )
     st.caption(f"Foreground identity: {data.manifest[image]['foreground_id']}")
     return image
 
