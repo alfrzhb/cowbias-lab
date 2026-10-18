@@ -2,9 +2,161 @@
 
 A reproducible synthetic experiment for studying spurious correlations between animal identity and background. The motivating case is a cow classifier that relies on grass and fails on a beach.
 
-**Status: Stages 1–3 implement audited data, frozen CNN training, held-out scientific evaluation, counterfactual analysis, genuine Grad-CAM and independent verification.** See [methodology](docs/methodology.md) and [held-out execution report](docs/stage3-results.md). Streamlit and the final academic PDF remain Stages 4–5. Validation scores below describe checkpoint selection, separately from held-out results.
+**Status: Stages 1–4 implement audited data, frozen CNN training, verified held-out evaluation, counterfactual analysis, genuine Grad-CAM and a five-tab Streamlit dashboard.** The final academic report remains Stage 5. See the [dashboard guide](docs/dashboard-guide.md), [methodology](docs/methodology.md) and [Stage 3 execution evidence](docs/stage3-results.md). Validation scores below describe checkpoint selection, separately from held-out results.
 
 Requirements: [docs/PRD.md](docs/PRD.md). Implementation sequence: [docs/PLAN.md](docs/PLAN.md).
+
+## Stage 4: interactive research dashboard
+
+A read-only Streamlit presentation of the **original verified Stage 3 artifact**. Reviewers can
+inspect genuine foreground pairs, frozen model predictions, held-out metrics and saved Grad-CAM
+in [3–5 minutes](docs/dashboard-guide.md). The UI performs no training, model inference, threshold
+changes or scientific reevaluation.
+
+![Actual desktop Streamlit application](docs/images/dashboard-desktop.png)
+
+<details>
+<summary>Actual mobile application at 390px</summary>
+
+![Actual mobile Streamlit application](docs/images/dashboard-mobile.png)
+
+</details>
+
+### Install, prepare, verify, start
+
+Use Python 3.11+; full artifact/browser acceptance runs on Python 3.12. Preparation invokes the
+existing Stage 3 scientific verifier and requires `eval` dependencies. The running UI imports
+no Torch or checkpoint code and only needs `ui`; it works on CPU without a GPU.
+
+```bash
+python -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+python -m pip install -e '.[ui,eval,dev]'
+
+# Existing authorized gh authentication is used for the private Actions artifact.
+python scripts/prepare_dashboard.py
+
+# Alternative: an original ZIP downloaded through authorized GitHub access.
+# Choose this instead of the command above, or use a NEW output directory.
+python scripts/prepare_dashboard.py --archive /path/to/stage3-scientific-results.zip \
+  --output artifacts/runs/downloaded-stage3
+
+python scripts/verify_evaluation.py \
+  --run artifacts/runs/downloaded-stage3/stage3-full-38874819983-1 --require-full
+python scripts/verify_dashboard.py \
+  --run artifacts/runs/downloaded-stage3/stage3-full-38874819983-1
+
+COWBIAS_EVAL_ROOT=artifacts/runs/downloaded-stage3/stage3-full-38874819983-1 \
+  streamlit run app/streamlit_app.py
+```
+
+For PowerShell set `$env:COWBIAS_EVAL_ROOT="artifacts/runs/downloaded-stage3/stage3-full-38874819983-1"`
+then run `streamlit run app/streamlit_app.py`. Without this variable, discovery checks run directories
+up to two levels below `artifacts/runs`, preferring the named full run. Run/seed choice is explicit;
+it never guesses the newest artifact or mixes seeds.
+
+Preparation checks Actions workflow **38874819983**, artifact **12035480745**, name, expiry and
+original ZIP digest **75b42453cde76bb6b5e7f5c1db903908b592439949a324e79f8ff17186dbb0d4**.
+It rejects traversal, symlinks, duplicate members, oversized extraction and existing output paths.
+The ZIP contains the named evaluation folder plus external diagnostics. Full independent
+verification runs once before the preparation is atomically published. A receipt outside the
+scientific directory binds run ID, archive hash, all file hashes, verification result and UTC time.
+Original scientific files are never edited. No authenticated GitHub requests occur on widget changes.
+
+Runtime validates receipt, inventory, hashes, completion, schemas and checkpoint/manifest identity.
+Cache keys include run path and file fingerprints (including nanosecond modification/change times).
+Only the active tab and seed load image/heatmap arrays; `allow_pickle=False` and shape/dtype/range
+checks protect NPZ loading. Full verification never runs on a widget rerender. Receipts detect
+local corruption, not a malicious party rewriting an entire unsigned bundle.
+
+### Five scientific sections
+
+| Section | Working features |
+|---|---|
+| Overview | Research question, four groups, baseline/treatment, shared CNN, experimental flow and saved mean ± sample SD results |
+| Dataset Explorer | Manifest-derived train/validation/test counts, original test RGB pairs and active-image metadata |
+| Model Comparison | Exact saved predictions for one image; probability of cow, explicit CORRECT/INCORRECT, checkpoint identity and pair sensitivity |
+| Evaluation | WGA, overall/four-group accuracy, genuine confusion counts, flip/paired correctness, probability sensitivity, disagreements, corrections and regressions |
+| Explainability & Export | Same-image true-target Grad-CAM, zero-map handling, attribution measures, original scientific downloads and traceable overlay PNGs |
+
+The sidebar holds run/seed, verification, provenance and limitations. The three inspection sections
+share filters, pair and background. Grass/Beach changes only the background member of the same
+foreground pair. Outcome filters match either background and initially show the matching image.
+New treatment errors and both-wrong cases remain selectable; absent categories show honest empty
+states. Seed/run changes reset incompatible selections.
+
+Only **test pixels** are available. Training and validation counts come from verified manifests;
+the app does not pretend their images are present. WGA is the minimum group accuracy. Read flip
+rate with paired correctness, because stability can conceal consistently incorrect predictions.
+Sample SD is descriptive across three seeds, not a confidence interval. Numeric SD values are
+retained even when mean ± SD extends outside the physical percentage range.
+
+Grad-CAM targets the true class: cow `logit`, horse `-logit`, shared across both models. Saved maps
+use individual positive-peak normalization and inferno at alpha 0.50. A zero map stays zero: the
+original input is shown with a zero-map explanation, and shares/enrichment are **undefined**.
+ReLU suppression can produce zero maps despite nonzero gradients. Attribution findings remain
+mixed; treatment does not uniformly move localization toward foreground, and foreground share
+or Grad-CAM alone does not establish background independence.
+
+Scientific CSV/JSON/PNG downloads preserve original bytes and are checked against receipt hashes.
+Selected overlay PNGs embed seed, image ID, model, true target, checkpoint/manifest references and
+attribution metadata. The displayed export/figure source identifies the active seed. Browser
+acceptance downloads, reopens and byte-compares CSV/JSON/figures for two seeds; the zero-map overlay
+is also decoded and compared pixel-for-pixel with its exact original model input.
+
+An absent run shows **Experiment not yet run** with preparation instructions and no fictitious
+metrics. Unprepared, incomplete or corrupted runs fail clearly. Missing images/pairs/maps never
+cause silent substitution. Genuine zero Grad-CAM is treated as valid evidence.
+
+### Automated tests and remote review
+
+```bash
+python -m pytest -q -rs
+python -m ruff check .
+COWBIAS_TEST_FULL_RUN=artifacts/runs/downloaded-stage3/stage3-full-38874819983-1 \
+  python -m pytest -q
+python -m pip install -e '.[browser]'
+python -m playwright install --with-deps chromium --only-shell
+python scripts/review_dashboard.py \
+  --run artifacts/runs/downloaded-stage3/stage3-full-38874819983-1
+```
+
+Routine Python 3.11/3.12 CI preserves all Stage 1–3 tests and training/evaluation smoke, adds
+Stage 4 fixtures, Ruff, AppTest and HTTP startup smoke. Seven full-artifact tests intentionally
+skip when `COWBIAS_TEST_FULL_RUN` is unset. They all execute in the separate
+[full dashboard acceptance workflow](.github/workflows/dashboard-acceptance.yml), which downloads
+and verifies the pinned scientific bundle. These skips do not replace a full acceptance run.
+
+The full acceptance job launches real Streamlit, tests all five tabs, seeds/outcomes/pairs,
+background toggling, actual predictions, zero maps, exports, missing data and 1440/1280/390px
+viewports. Browser checks wait on rendered seed/image/outcome/export identities and native
+script/sidebar state; they do not use arbitrary widget sleeps. The job uploads the private
+**stage4-dashboard-review** artifact with screenshots, downloaded files, consistency JSON, browser
+results, receipt and logs. Download it from a successful run's Artifacts section on a phone.
+The workflow uses only `contents: read` and `actions: read`; no public endpoint or new secret is used.
+
+For a development fixture, run the existing offline smoke CLIs, then explicitly prepare it:
+
+```bash
+python scripts/run_experiment.py --smoke --device cpu --output artifacts/runs/dev-training
+python scripts/evaluate_experiment.py --training-run artifacts/runs/dev-training \
+  --data-run artifacts/runs/dev-training/datasets --seeds 42 --smoke \
+  --output artifacts/runs/dev-evaluation
+python scripts/prepare_dashboard.py --fixture-run artifacts/runs/dev-evaluation
+COWBIAS_FIXTURE=1 COWBIAS_EVAL_ROOT=artifacts/runs/dev-evaluation \
+  streamlit run app/streamlit_app.py
+```
+
+Fixtures use genuinely optimized small models, are separate from full evidence, and display
+**DEVELOPMENT FIXTURE — NOT FINAL SCIENTIFIC RESULTS**. There are no hand-entered performance
+numbers or fabricated fallback data. Full checkpoint models are never retrained for the dashboard.
+
+The Stage 3 artifact expires **14 January 2027, 08:36:30 UTC**. Preserve the original ZIP before
+expiry for longer use; preparation cannot retrieve a deleted/expired artifact. Dashboard review
+artifacts use 90-day retention. Bulk scientific data and checkpoints are excluded from Git.
+
+Three seeds jointly vary data and initialization, and background pairs share foreground identity.
+No confirmatory significance claim or real-photo generalization is established. Stage 4 provides
+demonstration evidence for Stage 5; it does not produce the final academic PDF or merge its PR.
 
 ## Install and generate
 
@@ -19,7 +171,7 @@ python -m pytest -q
 ruff check .
 ```
 
-Generation runs all configured seeds (`42`, `123`, `2026`), producing **2,720 composites per seed** and 8,160 in total. Core dependencies are NumPy, Pillow and PyYAML. Stage 2 adds the `ml` extra (PyTorch); `app` remains optional for a future stage. Stage 1 requires no GPU or PyTorch.
+Generation runs all configured seeds (`42`, `123`, `2026`), producing **2,720 composites per seed** and 8,160 in total. Core dependencies are NumPy, Pillow and PyYAML. Stage 2 adds the `ml` extra (PyTorch); `ui` provides the optional Stage 4 dashboard. Stage 1 requires no GPU or PyTorch.
 
 ```bash
 python scripts/prepare_data.py --help
