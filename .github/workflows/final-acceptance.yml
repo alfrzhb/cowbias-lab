@@ -41,6 +41,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Fresh clone of exactly the reviewed source
+        id: clean_clone
         working-directory: ${{ github.workspace }}
         run: |
           [[ "$REVIEWED_SOURCE" =~ ^[0-9a-f]{40}$ ]]
@@ -48,6 +49,7 @@ jobs:
           git clone --no-local . "$GITHUB_WORKSPACE/../cowbias-clean"
           test "$(git -C "$GITHUB_WORKSPACE/../cowbias-clean" rev-parse HEAD)" = "$REVIEWED_SOURCE"
           python -m venv "$GITHUB_WORKSPACE/../cowbias-clean/.venv"
+          echo "root=$(realpath "$GITHUB_WORKSPACE/../cowbias-clean")" >> "$GITHUB_OUTPUT"
           echo "$GITHUB_WORKSPACE/../cowbias-clean/.venv/bin" >> "$GITHUB_PATH"
       - name: Install isolated environment
         run: |
@@ -104,7 +106,7 @@ jobs:
         with:
           name: stage5-final-review
           path: |
-            ${{ github.workspace }}/../cowbias-clean/artifacts/qa/**
-            !${{ github.workspace }}/../cowbias-clean/artifacts/qa/pytest-temp/**
+            ${{ steps.clean_clone.outputs.root }}/artifacts/qa/**
+            !${{ steps.clean_clone.outputs.root }}/artifacts/qa/pytest-temp/**
           if-no-files-found: error
           retention-days: 90
