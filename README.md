@@ -77,7 +77,7 @@ python -m pip install -e '.[eval,ui,dev,report]'
 
 python scripts/prepare_data.py --config config/experiment.yaml --seeds 42 --output artifacts/runs/data
 python scripts/prepare_data.py --audit artifacts/runs/data/seed_42/data --config config/experiment.yaml
-python scripts/run_experiment.py --smoke --device cpu --output artifacts/runs/smoke
+python scripts/run_experiment.py --config config/experiment.yaml --smoke --device cpu --output artifacts/runs/smoke
 python scripts/verify_checkpoints.py --run artifacts/runs/smoke
 python scripts/evaluate_experiment.py --training-run artifacts/runs/smoke \
   --data-run artifacts/runs/smoke/datasets --seeds 42 --smoke --output artifacts/runs/smoke-eval

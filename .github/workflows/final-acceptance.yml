@@ -73,7 +73,7 @@ jobs:
           python scripts/verify_dataset_identity.py --training-run artifacts/evidence/stage2-trained-models --data-run artifacts/runs/data-replay > artifacts/qa/data-identity.txt
       - name: Genuine small training and held-out evaluation smoke
         run: |
-          python scripts/run_experiment.py --smoke --device cpu --output artifacts/runs/fresh-smoke > artifacts/qa/training-smoke.txt
+          python scripts/run_experiment.py --config config/experiment.yaml --smoke --device cpu --output artifacts/runs/fresh-smoke > artifacts/qa/training-smoke.txt
           python scripts/verify_checkpoints.py --run artifacts/runs/fresh-smoke > artifacts/qa/checkpoint-smoke.json
           python scripts/evaluate_experiment.py --training-run artifacts/runs/fresh-smoke --data-run artifacts/runs/fresh-smoke/datasets --seeds 42 --smoke --device cpu --output artifacts/runs/fresh-evaluation > artifacts/qa/evaluation-smoke.txt
           python scripts/verify_evaluation.py --run artifacts/runs/fresh-evaluation > artifacts/qa/verify-smoke.json

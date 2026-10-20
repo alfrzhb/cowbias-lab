@@ -101,7 +101,7 @@ python scripts/prepare_data.py --config artifacts/evidence/stage2-trained-models
 python scripts/verify_dataset_identity.py --training-run artifacts/evidence/stage2-trained-models \
   --data-run artifacts/runs/data-replay
 
-python scripts/run_experiment.py --smoke --device cpu --output artifacts/runs/fresh-smoke
+python scripts/run_experiment.py --config config/experiment.yaml --smoke --device cpu --output artifacts/runs/fresh-smoke
 python scripts/verify_checkpoints.py --run artifacts/runs/fresh-smoke
 python scripts/evaluate_experiment.py --training-run artifacts/runs/fresh-smoke \
   --data-run artifacts/runs/fresh-smoke/datasets --seeds 42 --smoke --device cpu \
