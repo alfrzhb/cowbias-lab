@@ -1,0 +1,1471 @@
+{
+  "schema_version": 1,
+  "expected_pages": 13,
+  "run_id": "stage3-full-38874819983-1",
+  "report_title": "Perancangan dan Evaluasi Sistem Deep Learning untuk Mengurangi Fake Correlation pada Klasifikasi Citra Sapi Menggunakan Background Randomization",
+  "pdf_sha256": "8cfaacab157fbf88b0cd1552662eed07e1aef040da60737107ca68c879a1be8d",
+  "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+  "report_sources": {
+    "src/cowbias/report.py": "e5e27135016086fef13797a0a8a58facee29e959a10bd4c62c6847089e4432a3",
+    "src/cowbias/report_data.py": "e3736863455257c37922db9c09392888695b04a2c31f95dfefdedcc0cf183840",
+    "src/cowbias/evidence.py": "db1de5c0bbc63cea50538c35ee5d0e1fdbdccb42225ac7596e134663d5a59bee"
+  },
+  "environment": {
+    "python": "3.12.14",
+    "packages": {
+      "reportlab": "5.0.1",
+      "matplotlib": "3.10.8",
+      "numpy": "2.5.4",
+      "Pillow": "12.3.0"
+    }
+  },
+  "preservation": {
+    "status": "PENDING",
+    "reason": "Repository is public; no authorized durable access-controlled archive destination is available. Original verified ZIP copies and recovery tooling exist; Actions retention and a temporary workspace are not permanent preservation.",
+    "durable_location": null
+  },
+  "archives": {
+    "stage2-trained-models": {
+      "workflow_run_id": 38827143763,
+      "artifact_id": 12015781574,
+      "sha256": "d99ae16c94d57810e7cad11d25f62be061df943202ba4b9a59d10721012597be",
+      "source_commit": "881be87ef2d83100b51bfb069e1fa75097eb9688",
+      "expires_at": "2027-01-14T00:02:25Z",
+      "archive_name": "stage2-trained-models.zip",
+      "bytes": 3631083,
+      "workflow_url": "https://github.com/alfrzhb/cowbias-lab/actions/runs/38827143763",
+      "members": {
+        "dataset_generation.yaml": "57ac3e60a03c03450cea1fbfda1e525fe23ffbffbe719500dadc075c921eea1f",
+        "dataset_manifests/seed_123/audit.json": "00eb535f156a3891bff414ac4f6d33b9fc1869c3d5f725580acb8f622c1c629d",
+        "dataset_manifests/seed_123/contact_sheet.png": "f64f5fd90e762cce69dba46d3eaaa9e2389668244f032a87af937fa377b3653c",
+        "dataset_manifests/seed_123/dataset_config.json": "afff4790d99494f2d0389125eae736788cb6c261de1031feb52c0049901be68e",
+        "dataset_manifests/seed_123/group_distribution.csv": "59e77924c35c0510cb2d0543f30cece9302e82857947258985d5fcf9b8b6059e",
+        "dataset_manifests/seed_123/group_distribution.md": "bb75e59d975bd79c47b6b412b7e01c8ac533a172a2e257fb24661643dbe02d6b",
+        "dataset_manifests/seed_123/manifest.csv": "0be5dea5687928d07c5a120a3050aca336e2decd1022a670f432ddd6c2aeb666",
+        "dataset_manifests/seed_123/source_allocation.json": "9fd25d10a7387efb8ed7d82333b92be0cda4df06efb651ced05a3600c910e860",
+        "dataset_manifests/seed_123/sources.csv": "54f8e55d0201eafe421f4b8fa0ed63babe8858d8fa1c1605688b1a078cb87293",
+        "dataset_manifests/seed_2026/audit.json": "4f026888674fa6dea9cd22d098c281862f55a3288a35e9ffcba2b91e6a003cad",
+        "dataset_manifests/seed_2026/contact_sheet.png": "d01d6a8d722b1f6cb6fde2ff4200f63856d43e79c7921c839664f95b7b41ccc6",
+        "dataset_manifests/seed_2026/dataset_config.json": "0597988568c4d4234684120a3cbe614e5a0229c2ccc61014c36b851a4e20091b",
+        "dataset_manifests/seed_2026/group_distribution.csv": "59e77924c35c0510cb2d0543f30cece9302e82857947258985d5fcf9b8b6059e",
+        "dataset_manifests/seed_2026/group_distribution.md": "bb75e59d975bd79c47b6b412b7e01c8ac533a172a2e257fb24661643dbe02d6b",
+        "dataset_manifests/seed_2026/manifest.csv": "8e4912880d1f5899117d753f6c9d8993466dd487b8e1aaad3e22911c8c810017",
+        "dataset_manifests/seed_2026/source_allocation.json": "5987412116a909256f078647783dd9f9171dae2d738998960c5ba2e4e5c0792c",
+        "dataset_manifests/seed_2026/sources.csv": "4115b2ddb1f22434c3c5603493c4bb5bd07c7f8f905b98791574e9a0cd9d4e34",
+        "dataset_manifests/seed_42/audit.json": "fd6c56cea337bbc33c7d70b32c938c7b8f45a0834141bd6d1389c338f6b5dcd8",
+        "dataset_manifests/seed_42/contact_sheet.png": "ced78fe00100a95e812350ee28c55879547d131b49158d786b40d0ad31d11236",
+        "dataset_manifests/seed_42/dataset_config.json": "02b6f40a2874e670bb94043919061fede89a5dc982fa289716d0a0a85816dac9",
+        "dataset_manifests/seed_42/group_distribution.csv": "59e77924c35c0510cb2d0543f30cece9302e82857947258985d5fcf9b8b6059e",
+        "dataset_manifests/seed_42/group_distribution.md": "bb75e59d975bd79c47b6b412b7e01c8ac533a172a2e257fb24661643dbe02d6b",
+        "dataset_manifests/seed_42/manifest.csv": "5ba7307417a41f941ef0504ba1e19997d4201f8f94a2a97af96a3f5bb6cfa4e7",
+        "dataset_manifests/seed_42/source_allocation.json": "8f257d7774a9e938749e25ed3f3ebee8da343942bbfb3be97be1a25d85b25d80",
+        "dataset_manifests/seed_42/sources.csv": "2d46948332adf2e4c941c78e880697e3aae0cc1f6caa3311339cbe1113adf12b",
+        "dataset_references.json": "ede470bcd1ba67c6f41fac37506b2722ccb01f236e47dc6180f03d56873e573e",
+        "environment.json": "33e04b66242c6ba5ff29a9d363eb63a76bb3c6fa2094d8b75d223590d44f384d",
+        "requirements_freeze.txt": "f3bf1a56dd35ffa45d3c277dda610fd59ece67ef5695e6f8e936f85100cca660",
+        "run_config.json": "cc5b9ec7ba8f2a2b68ad47b00c5582f18063c50d193c415528b001bf478d1ee9",
+        "run_status.json": "c53e9111a25e1bc7a3e3d99467432279ee5267848114b84deb069d59b0f8429d",
+        "seed_123/baseline.pt": "61ce02a394f43f725ff49093963023e07cbf7c81b8c4b98ec48b9e851d7acd8f",
+        "seed_123/baseline_history.csv": "4130b97d975ebc61b5f9d0c76baa0fb0bb8a59001e099bbb85f6dd706a80bd65",
+        "seed_123/baseline_metadata.json": "807bae51089d63507786875a3f137773515596f5be1ac56170591635d9476502",
+        "seed_123/fairness.json": "72613e0ad24d91f161c6d48422365e171819229dbc6aa0ba95159954d70ccbb5",
+        "seed_123/treatment.pt": "f6222ad50e86cd44654f62215e061de16da7c31f87c486d57b50bbbf5ea0e666",
+        "seed_123/treatment_history.csv": "81e6d3abdee428bc48c704a1915a9551186b3ab02f08518829f7e62a306f546f",
+        "seed_123/treatment_metadata.json": "abc83cc3916405247ad6a1bfb67c4701021027df44bc611e4e157de8d6b0cc43",
+        "seed_123/validation_probe.npz": "fb4f80ced776a0bd78280260c3a7cec9855f98dd186cea64bfe0f968f0779da1",
+        "seed_2026/baseline.pt": "8e565291eb1629f11cddb39e055a91855273963087bf2bee3c9a03b51faf46f6",
+        "seed_2026/baseline_history.csv": "bcc1125e31bb80c71ff363524a1d9251b27b28d963c24f3f262ad3004feae913",
+        "seed_2026/baseline_metadata.json": "16973ceb9d735a5e46563c030d58ce2e8798d2296d2abdacdee15e4330621bbf",
+        "seed_2026/fairness.json": "718ed4ccaddeeeefddc39d5b3d4e21c1a01444ddfe5b784974393d6441e95fbe",
+        "seed_2026/treatment.pt": "ab1fc31eb5e8462cd9c6a914e05cd46b5948a507b65b2825e6a1f75bd69481bb",
+        "seed_2026/treatment_history.csv": "2b26d7d93aff890016c2f4036a38c9d95b5c11587a1907760a4836179beba9d7",
+        "seed_2026/treatment_metadata.json": "b18a5f14cc772a61cc0fc952805c9059accf39dfc6d131a59a0c17582538655a",
+        "seed_2026/validation_probe.npz": "c74ea0ae0f98bb2c23eb0a500b0b157e4ee47ce993e96d51c93ab14d91e09bf8",
+        "seed_42/baseline.pt": "0d7de966ea89431721796da08d3152c35d1c97ed98bb4d65497d2e4752d5819f",
+        "seed_42/baseline_history.csv": "e0b9a290a942e76200966e922ecb2a83aad01b604bd059180b2b5ad85db5581c",
+        "seed_42/baseline_metadata.json": "601cb90bf279996d120ecdc2e43cbd7e4c3a9aef73c84b0c368b3ecd29c0be42",
+        "seed_42/fairness.json": "a9a78462ef657c81b0a73079dfbc6682244945d33604134cff710c6d59ba0056",
+        "seed_42/treatment.pt": "d6c577358920d8369adee9ef00027b06d0675526cca3f5e0f11992f095eaedec",
+        "seed_42/treatment_history.csv": "685524b00a61af148a31e3430cff3194bd0c2669f52da50b82275b046566a64f",
+        "seed_42/treatment_metadata.json": "01a21effc25009c978320e11f1ce6395a04509401aa1758b08365edbc09c9708",
+        "seed_42/validation_probe.npz": "0b768c94a6da16beac63527f0a646f3cd87f6769636b87d2543e0e10e53e6f35",
+        "training.log": "7ab17b8628acd542a440731552421775915e15b35355b4911c7dc0a1458fa278",
+        "training_summary.json": "dd4b8b907a459779b002cbae19d59d1d0f47081ef40e9d88cde78ce28768ee84",
+        "verification.json": "d2a7453961965023c1ad23aad07d7402bdfeba34a8dad9ebf054a25cacecf2f4"
+      }
+    },
+    "stage3-scientific-results": {
+      "workflow_run_id": 38874819983,
+      "artifact_id": 12035480745,
+      "sha256": "75b42453cde76bb6b5e7f5c1db903908b592439949a324e79f8ff17186dbb0d4",
+      "source_commit": "f4c517e64c20ed3498a656ff31dcb67bdbc5e69d",
+      "expires_at": "2027-01-14T08:36:30Z",
+      "archive_name": "stage3-scientific-results.zip",
+      "bytes": 18190613,
+      "workflow_url": "https://github.com/alfrzhb/cowbias-lab/actions/runs/38874819983",
+      "members": {
+        "stage2.retrieval.json": "e3a5a586ff4d12d609793fa8caa55337f642c9475fd7bdcde73fed6ff2f58a74",
+        "stage3-execution.log": "3a9d07d1a05809dd9f48008c2d527140ec3eb88428e2710b6ecf4aacc682e87c",
+        "stage3-full-38874819983-1/checkpoint_verification.json": "d2a7453961965023c1ad23aad07d7402bdfeba34a8dad9ebf054a25cacecf2f4",
+        "stage3-full-38874819983-1/environment.json": "31c6509dd836eae9c273319cee21da4e673bc79da7db45e68c321306ee2e0de3",
+        "stage3-full-38874819983-1/evaluation.log": "de0ded94ffb0cfee9a185fe2440d53bfc298f4d4877a2e62501900ea93946679",
+        "stage3-full-38874819983-1/evaluation_config.json": "3642ba98201cf6deb8bc0790f92de045de58e420a4ebc7cb9037437242b59c35",
+        "stage3-full-38874819983-1/evaluation_manifest.json": "b5e41e0592ba67ad36a1af0ae27013c574663f1e2689a8dbe266f1a57578f348",
+        "stage3-full-38874819983-1/figure_sources.json": "fe2dbb51ff1d7f64ec25ea269b9627b1a7dc9f9f2af911a272691bf36f084879",
+        "stage3-full-38874819983-1/figures/cross_seed_summary.png": "95f7bd00edc60e137e99df23dc31d908536a5aa92c1de14a144e9a45d9f54f40",
+        "stage3-full-38874819983-1/requirements_freeze.txt": "e3c1160895e1ad6b54220e818cbdb632bbad3e6ce86c0d4a5fdfe1153fd731ed",
+        "stage3-full-38874819983-1/run_status.json": "adbbbfa3cadcfbf3db5ceaffc487de35e98ca38cb495c27dc7a8ab7c9bf6abc9",
+        "stage3-full-38874819983-1/seed_123/attribution.csv": "b1ff11ef3db85d0cfede88ded614ebeeee0868aa97696a3e3fffc804bcff47e8",
+        "stage3-full-38874819983-1/seed_123/audit.json": "00eb535f156a3891bff414ac4f6d33b9fc1869c3d5f725580acb8f622c1c629d",
+        "stage3-full-38874819983-1/seed_123/baseline_heatmaps.npz": "1fac0c50b77181173a10ebfe5b39efd6f8b96212c70c2c829d9c67892b449a3a",
+        "stage3-full-38874819983-1/seed_123/counterfactual_pairs.csv": "6bcdb67e090a22ad01255edefb7ba6599f2d18d837dae0cbfd6467211e4d3ea1",
+        "stage3-full-38874819983-1/seed_123/dataset_config.json": "afff4790d99494f2d0389125eae736788cb6c261de1031feb52c0049901be68e",
+        "stage3-full-38874819983-1/seed_123/figures/accuracy_by_group.png": "4b11cb4c456ed59c649ed8899d71a565728dbc8ab35cfe8b707733edc48a1e16",
+        "stage3-full-38874819983-1/seed_123/figures/background_sensitivity.png": "50d599fbe06b4eeeab2d95966cf3ccb980ad1bbe581537777d988fb90555d68a",
+        "stage3-full-38874819983-1/seed_123/figures/confusion_matrix.png": "a54d59454889fdb5e1bbd4b1bdc43cfec79626e4c0d15795e0c124cd21cffd96",
+        "stage3-full-38874819983-1/seed_123/figures/counterfactual_examples.png": "019037eaa1807f688aa10349e21e175a7e2c9a095a58c6763a1960cde69ac779",
+        "stage3-full-38874819983-1/seed_123/figures/exploratory_cases.png": "1965a8d3def75802a808d4dc71dbc88601519735f9799e221e84591fb5d0e094",
+        "stage3-full-38874819983-1/seed_123/figures/gradcam_comparison.png": "44a59823bdf52abc5ff6cb8d21f08a19990f199d0c82c083a6cc0640c44dec9d",
+        "stage3-full-38874819983-1/seed_123/gradcam_examples.csv": "f5cff0c02de12e678d940538d5e023a361c0b4a09ce731584843b48b145cf6b8",
+        "stage3-full-38874819983-1/seed_123/manifest.csv": "0be5dea5687928d07c5a120a3050aca336e2decd1022a670f432ddd6c2aeb666",
+        "stage3-full-38874819983-1/seed_123/metrics.json": "ffc497a8dc3cb02d3f4d7f04f4ac130450c1f0d7b3424518a23c05b04a8523be",
+        "stage3-full-38874819983-1/seed_123/model_disagreements.csv": "b99fc8f8f47b961f3baf4390f5299484984c97c2955fdab188f6eec710236f8b",
+        "stage3-full-38874819983-1/seed_123/predictions.csv": "b9dd3e6ba3f2e35cd9a90cfe1f072c3fc51001cb431b166b3b17967e56b74cdf",
+        "stage3-full-38874819983-1/seed_123/source_allocation.json": "9fd25d10a7387efb8ed7d82333b92be0cda4df06efb651ced05a3600c910e860",
+        "stage3-full-38874819983-1/seed_123/sources.csv": "54f8e55d0201eafe421f4b8fa0ed63babe8858d8fa1c1605688b1a078cb87293",
+        "stage3-full-38874819983-1/seed_123/test_inputs.npz": "03cf2a11ec8ff00befac3648eae721fe9e2c7a6d7ae47864060e1bae070a8c7d",
+        "stage3-full-38874819983-1/seed_123/treatment_heatmaps.npz": "04c527d601ac0d7f4c6279688649b2c5990aced486e5dd3f2caf5229dc2219e0",
+        "stage3-full-38874819983-1/seed_2026/attribution.csv": "adc3888e7b0a4246fb4be7db079e43266b8336c85dd6c9230a3fd5a1eed1e3e0",
+        "stage3-full-38874819983-1/seed_2026/audit.json": "4f026888674fa6dea9cd22d098c281862f55a3288a35e9ffcba2b91e6a003cad",
+        "stage3-full-38874819983-1/seed_2026/baseline_heatmaps.npz": "6c023bf123236876917b68f414ed54329fc46553d8703b023c3875215dcf4de9",
+        "stage3-full-38874819983-1/seed_2026/counterfactual_pairs.csv": "06c4577f8b6a063e42157724b61eee66f0580733efac83805aadefd50b7f9b17",
+        "stage3-full-38874819983-1/seed_2026/dataset_config.json": "0597988568c4d4234684120a3cbe614e5a0229c2ccc61014c36b851a4e20091b",
+        "stage3-full-38874819983-1/seed_2026/figures/accuracy_by_group.png": "6716fd5f88ae8a28324ddf15953bfc32795dac8a163132b034a277a1c328697e",
+        "stage3-full-38874819983-1/seed_2026/figures/background_sensitivity.png": "434be3b8ad791d6d20102d5dd04cb785860c987d6fae27e372ac7d9f346469b9",
+        "stage3-full-38874819983-1/seed_2026/figures/confusion_matrix.png": "812ab21fd8c89b096b5faec8db85ace480cd6f80857f1e4583eb308d662b18d8",
+        "stage3-full-38874819983-1/seed_2026/figures/counterfactual_examples.png": "7d60dc6db2c2d9baf06d0fa539cd44845a45ac2b00122eeb659465d1895f7441",
+        "stage3-full-38874819983-1/seed_2026/figures/exploratory_cases.png": "bc1daf3ab90a613dc65215ab8ddf4b9d429849d52b7349acaff4bddb3cadca62",
+        "stage3-full-38874819983-1/seed_2026/figures/gradcam_comparison.png": "7766c54ea148beeabfc226ee40578a814dd818956a9c820ce9ed7b86b9bd7f3d",
+        "stage3-full-38874819983-1/seed_2026/gradcam_examples.csv": "99a6c47b9d97b921fdc8425507ee2cbc8387b70aaeb9b8270e853b6de5c4e2f1",
+        "stage3-full-38874819983-1/seed_2026/manifest.csv": "8e4912880d1f5899117d753f6c9d8993466dd487b8e1aaad3e22911c8c810017",
+        "stage3-full-38874819983-1/seed_2026/metrics.json": "84cba7814aa8188ef26d42c0cb7c8b41557a044e6c9de376dda163dfaa94514a",
+        "stage3-full-38874819983-1/seed_2026/model_disagreements.csv": "6a5171c97dff7b16999f972fa0ee3f771264dcb34f7c4c0b0e29846c48ea54e0",
+        "stage3-full-38874819983-1/seed_2026/predictions.csv": "86db5888bc2813c0539ec84f7677e1da088ef5c794ee85cc70411db003ef3a17",
+        "stage3-full-38874819983-1/seed_2026/source_allocation.json": "5987412116a909256f078647783dd9f9171dae2d738998960c5ba2e4e5c0792c",
+        "stage3-full-38874819983-1/seed_2026/sources.csv": "4115b2ddb1f22434c3c5603493c4bb5bd07c7f8f905b98791574e9a0cd9d4e34",
+        "stage3-full-38874819983-1/seed_2026/test_inputs.npz": "e0b5cdea2adb8a2cd4260f7b53f808ac58a18d88abf7b6d181a50c3254dff161",
+        "stage3-full-38874819983-1/seed_2026/treatment_heatmaps.npz": "f829dbdd510f35d33681c4ccdd88936e8d1805511358cb6623ef30d6f0bbdf5f",
+        "stage3-full-38874819983-1/seed_42/attribution.csv": "bd999c1ee1c9dc6e0bda2e0d1f5bbd495b724bac5e7675b0336e1d22e36b59d7",
+        "stage3-full-38874819983-1/seed_42/audit.json": "fd6c56cea337bbc33c7d70b32c938c7b8f45a0834141bd6d1389c338f6b5dcd8",
+        "stage3-full-38874819983-1/seed_42/baseline_heatmaps.npz": "672d296f260ef52d9c663b7c7063a9e97e03e84f7f018364f63f0da016611bb7",
+        "stage3-full-38874819983-1/seed_42/counterfactual_pairs.csv": "0c6f99bb4e95a15612affa49267107540121a69888de06b1a7e5453288a2e205",
+        "stage3-full-38874819983-1/seed_42/dataset_config.json": "02b6f40a2874e670bb94043919061fede89a5dc982fa289716d0a0a85816dac9",
+        "stage3-full-38874819983-1/seed_42/figures/accuracy_by_group.png": "0580e3cc2caa724cb3412f4baedf25661b3d5e0a01c861d33d8dd757cfe8c20c",
+        "stage3-full-38874819983-1/seed_42/figures/background_sensitivity.png": "9c543dd88ff7fcfea88f4296046c698374506c94f9ed12ee70c75c291a3b7de6",
+        "stage3-full-38874819983-1/seed_42/figures/confusion_matrix.png": "f8ea0d8f1f54f5eddf5258a52a9757763ee0584773101513faa93f803368c6e2",
+        "stage3-full-38874819983-1/seed_42/figures/counterfactual_examples.png": "a799333e783ee473d3ce79697a49741f1899245aadb3765cfcd14e611b8b3496",
+        "stage3-full-38874819983-1/seed_42/figures/exploratory_cases.png": "6006451cde9e1b75b0d4e2a6de8ef9562268fdbd02eb64a95cd7e65be317a455",
+        "stage3-full-38874819983-1/seed_42/figures/gradcam_comparison.png": "0e4218d64a9cb40c01a32149f23ac94b48af78898202b93d6a9cf29b29b70a0f",
+        "stage3-full-38874819983-1/seed_42/gradcam_examples.csv": "32c1b3185b1eb86ff0b7c553b2556433c9696ea6279795d8f59b61df9a51e8a5",
+        "stage3-full-38874819983-1/seed_42/manifest.csv": "5ba7307417a41f941ef0504ba1e19997d4201f8f94a2a97af96a3f5bb6cfa4e7",
+        "stage3-full-38874819983-1/seed_42/metrics.json": "c620ea467bd79cc8b2232793f317e96d10c14ac1353a1de7fc02ec9e32187c27",
+        "stage3-full-38874819983-1/seed_42/model_disagreements.csv": "0db13acafdbd030707cdf64ebcec6d5629c84675dec7db80d4f4bda7bc168c11",
+        "stage3-full-38874819983-1/seed_42/predictions.csv": "1dd7a3ac66fbab938fe84be1abf7fc53b364419b74585cac4168a1f1e11c0386",
+        "stage3-full-38874819983-1/seed_42/source_allocation.json": "8f257d7774a9e938749e25ed3f3ebee8da343942bbfb3be97be1a25d85b25d80",
+        "stage3-full-38874819983-1/seed_42/sources.csv": "2d46948332adf2e4c941c78e880697e3aae0cc1f6caa3311339cbe1113adf12b",
+        "stage3-full-38874819983-1/seed_42/test_inputs.npz": "89d32702842986871ee2cf729d46c5ae3b5332223ef214c40fd263d600272b12",
+        "stage3-full-38874819983-1/seed_42/treatment_heatmaps.npz": "246f366e57b46ca8424520536d4a50e841f2ab1be1ddfaaf0c8335090bd4ccab",
+        "stage3-full-38874819983-1/source_references.json": "08d0399e548390ea2e8d5eaffcc3ab620b736376c21aec52f574c429b30b13a3",
+        "stage3-full-38874819983-1/summary.csv": "eb779866ece4e433cb9e8e33d5bcf0b205f2fbb5eecb432696c3b16b7c32b88e",
+        "stage3-full-38874819983-1/summary.json": "9ff3ee4f9984f385d985887a6822b8222ddb318e09dd9eb6d7f71b88ecc7b91d",
+        "stage3-full-38874819983-1/verification.json": "7c4e5711a6ccacec9523442e07d5255228d7fbd4b600000848aba8d14cbf52ca"
+      }
+    },
+    "stage4-dashboard-review": {
+      "workflow_run_id": 39140400975,
+      "artifact_id": 12141178453,
+      "sha256": "78b5f33e9741808dcbcb55c8d014b00acfc84e5bf43b39ec2019d0bd6e2dd18b",
+      "source_commit": "4fc877ae5350a0af9d70f6f6c9533e97276bd254",
+      "expires_at": "2027-01-16T15:25:18Z",
+      "archive_name": "stage4-dashboard-review.zip",
+      "bytes": 1848412,
+      "workflow_url": "https://github.com/alfrzhb/cowbias-lab/actions/runs/39140400975",
+      "members": {
+        "dashboard-review/1280-dataset.png": "20d6c9606acc7b77bb3cc73bd0f44509d98c5090ff7afe62abd7468ef9b11074",
+        "dashboard-review/1280-evaluation.png": "2f18481b5d0c229891004a128fb5959bf5e0b2e3bb6a54937442edd0f21b52c4",
+        "dashboard-review/1280-explainability.png": "4cb7cd525a8ec6e6ecb1712261ea91da9d6f6540b5042c7816d21c0a4c3db58f",
+        "dashboard-review/1280-model.png": "65e05b43e2007ae893662db2924fb659293b2fc35b3c7c9e923da1b56b375c8f",
+        "dashboard-review/1280-overview.png": "171b6447cbe8c84fefee29d1c5cdca0121198841abb402329b9d156d1d1eafc0",
+        "dashboard-review/1440-dataset.png": "59f7cc817be3efe56960e3843e7b3c4edccfc979744c533b2aa764d9b10496b4",
+        "dashboard-review/1440-evaluation.png": "ab7d5108353ca78fd151c42e8c6c498cdf8039f6617761caf31a1c6d0191f9b2",
+        "dashboard-review/1440-explainability.png": "164f378d58bd9d7c793ead756f7438ab81d27476bc8fa564d19afc79bfcf7d08",
+        "dashboard-review/1440-model.png": "544000c2cc180104dec29edb83be8d297a41a6b4b673647cb20f853f8c3a65a9",
+        "dashboard-review/1440-overview.png": "276f9f9f9feb9cedf02016deda5e222861a539c75fa4e39f31b604b595ab7eb0",
+        "dashboard-review/390-dataset.png": "72906dabbdc6ab15525d3b58d041498307685e470bd475f67475e2d1dd45dc26",
+        "dashboard-review/390-evaluation.png": "bcd456f37ac95a68b3079ce50f545271bbc78625be83f92a498625341a6d83c1",
+        "dashboard-review/390-explainability.png": "60605c251f9e454944071c44bef975414f6470f808a37ff7db3a5ca660d6bb72",
+        "dashboard-review/390-missing.png": "39cc140e16e043c33b60d0963a35fda7905ba98fc8a8606e8d729f5b7d186047",
+        "dashboard-review/390-model.png": "092ae8e820e704fd1859cbd9ca4b9de06c489acaffc7055095e85f4989ec0e19",
+        "dashboard-review/390-overview.png": "080d7a2b8ef88c352d459fd43085218cb0c42368d36195e5374610ea03119341",
+        "dashboard-review/browser-review.json": "66975c4be2f0b0b7153b6cc062b61a103e7ba45e654539a5241c700d2e402a60",
+        "dashboard-review/consistency.json": "c9d17fd0606045012e277b590717394c92bfcc0148c3c0f6521608ac28a6577b",
+        "dashboard-review/downloads/seed-123-figure.png": "4b11cb4c456ed59c649ed8899d71a565728dbc8ab35cfe8b707733edc48a1e16",
+        "dashboard-review/downloads/seed-123-metrics.json": "ffc497a8dc3cb02d3f4d7f04f4ac130450c1f0d7b3424518a23c05b04a8523be",
+        "dashboard-review/downloads/seed-123-predictions.csv": "b9dd3e6ba3f2e35cd9a90cfe1f072c3fc51001cb431b166b3b17967e56b74cdf",
+        "dashboard-review/downloads/seed-42-figure.png": "0580e3cc2caa724cb3412f4baedf25661b3d5e0a01c861d33d8dd757cfe8c20c",
+        "dashboard-review/downloads/seed-42-metrics.json": "c620ea467bd79cc8b2232793f317e96d10c14ac1353a1de7fc02ec9e32187c27",
+        "dashboard-review/downloads/seed-42-predictions.csv": "1dd7a3ac66fbab938fe84be1abf7fc53b364419b74585cac4168a1f1e11c0386",
+        "dashboard-review/downloads/zero-baseline-overlay.png": "e07b26c49fbaf9b051e0dcb0f3126ddad406262707783f700ea5b65245f6b543",
+        "dashboard-review/seed-123-treatment_only.png": "6aa223ffa21eb1bd8c1654e022aeee16726ec750b1b4549de1276cf70ef59fb7",
+        "dashboard-review/seed-2026-treatment_only.png": "9a0f6a083fd60f65331f8ab6aaf6100d1afe1b14218551172a4a99efc9ce77ce",
+        "dashboard-review/seed-42-baseline_only.png": "90c2076451cb8909d64cfd4ea5c45d9b80125199932ba65e833b495b0be62c27",
+        "dashboard-review/seed-42-treatment_only.png": "98088b3968adf954830e4b9525e5fa9bc3597ed08f0ca20b1177d5b0db398fbb",
+        "dashboard-review/server-8511.log": "80527c4760c30e388ee8df7c06aae384680b0fc7ec70e74adde8c25d4f2aba64",
+        "dashboard-review/server-8512.log": "64f1edea1d95e369e38693a28696380af5d7cb6c0140328bb68f26180de7808a",
+        "dashboard-review/zero-gradcam.png": "5250265f6c4055b75bce45bb68db7bda5b6c2ca357206b77ff128131162cc222",
+        "runs/downloaded-stage3/stage3-full-38874819983-1.dashboard-receipt.json": "0f4a1ab7b3c8568e76abb6a4b49f6d35d750e03dc2413d09c7bdbf94c91e8a20"
+      }
+    }
+  },
+  "scientific_source_hashes": {
+    "__init__.py": "856ccbb87ce2eb828ef3baf74998050c7824da652c39e488a3161f4f5746737d",
+    "config.py": "80d8fe9ebca041ff05ac10b26b450fbe9804d5fb482e583bf539a14117b6f67b",
+    "data/__init__.py": "ad86c9df9a36c10ca75aa2b0a43807cc76c1c6372c8b43a132422b92f75c32c1",
+    "data/audit.py": "a7a4cf8d30923e6be2634bed1090e871f98d13746e66b71d6c3f7c40810b19c6",
+    "data/dataset.py": "180d4b4c0edd7e6899fde5fc7dc0e96401a398927a2413f6214cf72824333437",
+    "data/generate.py": "e59799d6c6497ef76b40b087c96eaee7c7ce35945c6e8c15589b0a96d37efd29",
+    "data/pipeline.py": "a21150b850efe1eafe3e4eac12ec36734ba59820944275c6a04e0262fe0eb882",
+    "data/splits.py": "9f7f73bb750bbd1c87302d058e8d819a76544e7ce66be9d88b70cd816530434f",
+    "evaluation/__init__.py": "5df8f399a2732888d6e06e2a1bcb03681e5f290d92b529c6391a998cf5c1d730",
+    "evaluation/aggregation.py": "880f824d88d02404e4a36c6a63732856a9663a783922e8b4e56df0cfff65874a",
+    "evaluation/counterfactual.py": "083830687be4d43bd0635158da9c185dcd10dcb1fa25c8795d02e2eeea48fd42",
+    "evaluation/data.py": "3ae0593b4899f02a2bdfd9acd4d35ef0f1023d2c2de85c4bd03f82d3e00a3cd4",
+    "evaluation/evaluator.py": "3bb9a818642b2f5e891580c83918a52324df1a8802ec9687d3191fc2c9cea090",
+    "evaluation/gradcam.py": "38d9298cf063fc06c768378e9c9e50a6f004a3b439e5af262e55d4501004ab55",
+    "evaluation/metrics.py": "d4d161991e914d7bf20d66d4d5461425efbb4994dd9880a205c64b459bd23e66",
+    "evaluation/plots.py": "e2abf3aca72d631d9a50be2063d824cf5509e3d64f806133c78db30860d9a4b6",
+    "evaluation/verification.py": "364f196632e3d80d2601a16147e8fc6795a3ea13a8e355fb6afa47a6c585c0d5",
+    "explainability/__init__.py": "b959a8ca008faa50bfcd16383b5826f1d0e813b4cb316d73498f61e3e0c4f497",
+    "models/__init__.py": "5808f738c1a12db83239bf3be01b3e16de337731019999190d4dfe5391ead7df",
+    "models/cnn.py": "82dafc09f152a35749f431a6f11f66f173b9e4734df3cf15e0f843535843207d",
+    "training/__init__.py": "0bde86221a661117ffb9b56d5886051e67c5d856079da21c4040a22ccdbcc987",
+    "training/checkpoint.py": "411e6c46ca3b92f269c6f86986a1830602db6c726ffd632a0bfa3bfbf6d1c0bf",
+    "training/data.py": "6ff8e5b563277b501c2e745460a2356f120917f3c5607fbedf3490a20adfd4eb",
+    "training/experiment.py": "69c146be2ff0a9581139baccebdc836a9bec6e7a6c0bc980b538732e67652409",
+    "training/reproducibility.py": "c7c15eaeec7aacea5af9f3a174707131dd2e0811eaba69de7370bc5c3697a9ab",
+    "training/train.py": "a1bfa795c96390f0a126ff2dead0480c1567f178ba78041a6bc230cfae3d363f",
+    "training/treatment.py": "2c933215ac5fc99d43f4a361f448d5509c07e8fc5d533d2a7a43378a8279956f",
+    "visualization/__init__.py": "df1b915ec6566b78ba2b032128f6f79369036baa17a947e20cebef9eeb6f5f3c"
+  },
+  "verification": {
+    "checkpoints": [
+      {
+        "seed": 42,
+        "variant": "baseline",
+        "selected_epoch": 7,
+        "validation_loss": 0.6089232166608175,
+        "validation_accuracy": 0.8208333333333333,
+        "validation_wga": 0.35,
+        "checkpoint_sha256": "0d7de966ea89431721796da08d3152c35d1c97ed98bb4d65497d2e4752d5819f",
+        "verification": "PASS"
+      },
+      {
+        "seed": 42,
+        "variant": "treatment",
+        "selected_epoch": 4,
+        "validation_loss": 0.025483285263180732,
+        "validation_accuracy": 0.9958333333333333,
+        "validation_wga": 0.9833333333333333,
+        "checkpoint_sha256": "d6c577358920d8369adee9ef00027b06d0675526cca3f5e0f11992f095eaedec",
+        "verification": "PASS"
+      },
+      {
+        "seed": 123,
+        "variant": "baseline",
+        "selected_epoch": 7,
+        "validation_loss": 0.9098203738530477,
+        "validation_accuracy": 0.5458333333333333,
+        "validation_wga": 0.05,
+        "checkpoint_sha256": "61ce02a394f43f725ff49093963023e07cbf7c81b8c4b98ec48b9e851d7acd8f",
+        "verification": "PASS"
+      },
+      {
+        "seed": 123,
+        "variant": "treatment",
+        "selected_epoch": 7,
+        "validation_loss": 0.0032499375481468934,
+        "validation_accuracy": 1.0,
+        "validation_wga": 1.0,
+        "checkpoint_sha256": "f6222ad50e86cd44654f62215e061de16da7c31f87c486d57b50bbbf5ea0e666",
+        "verification": "PASS"
+      },
+      {
+        "seed": 2026,
+        "variant": "baseline",
+        "selected_epoch": 1,
+        "validation_loss": 1.8400638580322266,
+        "validation_accuracy": 0.5,
+        "validation_wga": 0.0,
+        "checkpoint_sha256": "8e565291eb1629f11cddb39e055a91855273963087bf2bee3c9a03b51faf46f6",
+        "verification": "PASS"
+      },
+      {
+        "seed": 2026,
+        "variant": "treatment",
+        "selected_epoch": 4,
+        "validation_loss": 0.04659300247828166,
+        "validation_accuracy": 1.0,
+        "validation_wga": 1.0,
+        "checkpoint_sha256": "ab1fc31eb5e8462cd9c6a914e05cd46b5948a507b65b2825e6a1f75bd69481bb",
+        "verification": "PASS"
+      }
+    ],
+    "evaluation": {
+      "status": "PASS",
+      "verified_utc": "2026-10-19T13:52:28.353413+00:00",
+      "method": "independent saved CSV arithmetic, paired identities, source/input hashes, raw heatmap/mask recomputation",
+      "run_id": "stage3-full-38874819983-1",
+      "seeds": [
+        42,
+        123,
+        2026
+      ],
+      "prediction_rows": 2880,
+      "model_pair_evaluations": 1440,
+      "attribution_rows": 2880,
+      "files_verified": 70,
+      "full": true
+    }
+  },
+  "entries": [
+    {
+      "id": "Tabel 1",
+      "report_page": 2,
+      "section": "1-2",
+      "sources": [
+        {
+          "artifact": "repository",
+          "internal_path": "docs/PRD.md",
+          "sha256": "9dca8b7ab547755d7ee9f97cc0d06953ebc2b8aa8f1aa232ce2270cc88af087e",
+          "source_run_id": null
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "cells": [
+        [
+          "Kategori",
+          "Ruang lingkup"
+        ],
+        [
+          "Instruksi eksplisit",
+          "Merancang sistem, menerapkan treatment korelasi semu, menyajikan visualisasi dan penjelasan treatment."
+        ],
+        [
+          "Keputusan rekayasa",
+          "Data sintetis 2D, kuda sebagai pembanding, CNN, tiga seed, WGA, Grad-CAM, Streamlit, GitHub, dan laporan terprogram."
+        ],
+        [
+          "Temuan ilmiah",
+          "Angka hanya berasal dari checkpoint dan artefak full run yang diverifikasi; hasil dibahas pada Bagian 8-10."
+        ],
+        [
+          "Batas klaim",
+          "Tidak menguji foto nyata, tidak membuktikan independensi kausal universal dari latar."
+        ]
+      ],
+      "kind": "derived_table"
+    },
+    {
+      "id": "Gambar 1",
+      "report_page": 3,
+      "section": "3",
+      "sources": [
+        {
+          "artifact": "repository",
+          "internal_path": "src/cowbias/data/pipeline.py",
+          "sha256": "a21150b850efe1eafe3e4eac12ec36734ba59820944275c6a04e0262fe0eb882",
+          "source_run_id": null
+        },
+        {
+          "artifact": "repository",
+          "internal_path": "src/cowbias/training/experiment.py",
+          "sha256": "69c146be2ff0a9581139baccebdc836a9bec6e7a6c0bc980b538732e67652409",
+          "source_run_id": null
+        },
+        {
+          "artifact": "repository",
+          "internal_path": "src/cowbias/evaluation/evaluator.py",
+          "sha256": "3bb9a818642b2f5e891580c83918a52324df1a8802ec9687d3191fc2c9cea090",
+          "source_run_id": null
+        },
+        {
+          "artifact": "repository",
+          "internal_path": "src/cowbias/dashboard/ui.py",
+          "sha256": "33f350d757174d1dd21bdea3bf7d1d30703f8fa1b521ccf021f8850dc46a3147",
+          "source_run_id": null
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "kind": "figure",
+      "figure_sha256": "20c11623e8f6f0e9cf14a74096f233fca5f4b2240b6803c2b2daab336f315c93",
+      "rgb_pixels_sha256": "194809c51d16b95a6b53e4a64e3c73cfc39b3049b4dcc9110db0f34d413b853e",
+      "pixel_dimensions": [
+        1291,
+        666
+      ],
+      "evidence_type": "source-derived explanatory diagram",
+      "seeds": [
+        42,
+        123,
+        2026
+      ]
+    },
+    {
+      "id": "Gambar 2",
+      "report_page": 3,
+      "section": "4",
+      "sources": [
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/test_inputs.npz",
+          "sha256": "89d32702842986871ee2cf729d46c5ae3b5332223ef214c40fd263d600272b12",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/manifest.csv",
+          "sha256": "5ba7307417a41f941ef0504ba1e19997d4201f8f94a2a97af96a3f5bb6cfa4e7",
+          "source_run_id": "stage3-full-38874819983-1"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "kind": "figure",
+      "figure_sha256": "f36872162e11033f85f2d696eb0d1ca06049145d2730c5eecf1c837cc3d6f006",
+      "rgb_pixels_sha256": "6c52cf63450ea8938905072ae18d4aa96defc434edbfd4f16c6fb85b12152efb",
+      "pixel_dimensions": [
+        1607,
+        493
+      ],
+      "seed": 42,
+      "images": [
+        {
+          "image_id": "s42-image-002368",
+          "pair_id": "pair-s42-f-00007",
+          "foreground_id": "s42-f-00007"
+        },
+        {
+          "image_id": "s42-image-002369",
+          "pair_id": "pair-s42-f-00007",
+          "foreground_id": "s42-f-00007"
+        },
+        {
+          "image_id": "s42-image-002590",
+          "pair_id": "pair-s42-h-00011",
+          "foreground_id": "s42-h-00011"
+        },
+        {
+          "image_id": "s42-image-002591",
+          "pair_id": "pair-s42-h-00011",
+          "foreground_id": "s42-h-00011"
+        }
+      ]
+    },
+    {
+      "id": "Tabel 2",
+      "report_page": 4,
+      "section": "4",
+      "sources": [
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/manifest.csv",
+          "sha256": "5ba7307417a41f941ef0504ba1e19997d4201f8f94a2a97af96a3f5bb6cfa4e7",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_123/manifest.csv",
+          "sha256": "0be5dea5687928d07c5a120a3050aca336e2decd1022a670f432ddd6c2aeb666",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_2026/manifest.csv",
+          "sha256": "8e4912880d1f5899117d753f6c9d8993466dd487b8e1aaad3e22911c8c810017",
+          "source_run_id": "stage3-full-38874819983-1"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "cells": [
+        [
+          "Split / varian",
+          "Sapi / rumput",
+          "Sapi / pantai",
+          "Kuda / rumput",
+          "Kuda / pantai",
+          "Total"
+        ],
+        [
+          "baseline",
+          485,
+          15,
+          15,
+          485,
+          1000
+        ],
+        [
+          "treatment",
+          250,
+          250,
+          250,
+          250,
+          1000
+        ],
+        [
+          "validation",
+          60,
+          60,
+          60,
+          60,
+          240
+        ],
+        [
+          "test",
+          120,
+          120,
+          120,
+          120,
+          480
+        ]
+      ],
+      "kind": "derived_table"
+    },
+    {
+      "id": "Tabel 3",
+      "report_page": 5,
+      "section": "5",
+      "sources": [
+        {
+          "artifact": "repository",
+          "internal_path": "src/cowbias/models/cnn.py",
+          "sha256": "82dafc09f152a35749f431a6f11f66f173b9e4734df3cf15e0f843535843207d",
+          "source_run_id": null
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_42/baseline_metadata.json",
+          "sha256": "601cb90bf279996d120ecdc2e43cbd7e4c3a9aef73c84b0c368b3ecd29c0be42",
+          "source_run_id": "stage2-full"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "cells": [
+        [
+          "Komponen",
+          "Operasi / dimensi"
+        ],
+        [
+          "Input",
+          "RGB 32×32; tensor float32 CHW; (pixel/255 - 0.5)/0.5"
+        ],
+        [
+          "Blok 1",
+          "Conv2D 3→16, kernel 3×3, padding 1; ReLU; MaxPool2D(2)"
+        ],
+        [
+          "Blok 2",
+          "Conv2D 16→32, kernel 3×3, padding 1; ReLU; MaxPool2D(2)"
+        ],
+        [
+          "Blok 3",
+          "Conv2D 32→64, kernel 3×3, padding 1; ReLU; MaxPool2D(2)"
+        ],
+        [
+          "Classifier",
+          "AdaptiveAvgPool2D(4×4); Flatten(1024); Linear(1024,64); ReLU; Linear(64,1)"
+        ],
+        [
+          "Optimasi",
+          "AdamW; learning rate 0.001; batch 64; 7 epoch; BCEWithLogitsLoss"
+        ]
+      ],
+      "kind": "derived_table"
+    },
+    {
+      "id": "Gambar 3",
+      "report_page": 6,
+      "section": "7",
+      "sources": [
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_42/baseline_history.csv",
+          "sha256": "e0b9a290a942e76200966e922ecb2a83aad01b604bd059180b2b5ad85db5581c",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_42/treatment_history.csv",
+          "sha256": "685524b00a61af148a31e3430cff3194bd0c2669f52da50b82275b046566a64f",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_123/baseline_history.csv",
+          "sha256": "4130b97d975ebc61b5f9d0c76baa0fb0bb8a59001e099bbb85f6dd706a80bd65",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_123/treatment_history.csv",
+          "sha256": "81e6d3abdee428bc48c704a1915a9551186b3ab02f08518829f7e62a306f546f",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_2026/baseline_history.csv",
+          "sha256": "bcc1125e31bb80c71ff363524a1d9251b27b28d963c24f3f262ad3004feae913",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_2026/treatment_history.csv",
+          "sha256": "2b26d7d93aff890016c2f4036a38c9d95b5c11587a1907760a4836179beba9d7",
+          "source_run_id": "stage2-full"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "kind": "figure",
+      "figure_sha256": "adc0ceaf02d42c30f3372b4a72abb6794369fcfc835b8c090571a7589de2ade5",
+      "rgb_pixels_sha256": "d9dcccfa90438623278389dc292b875ee03cc792196df2077f32c18689192739",
+      "pixel_dimensions": [
+        1607,
+        903
+      ],
+      "seeds": [
+        42,
+        123,
+        2026
+      ]
+    },
+    {
+      "id": "Tabel 4",
+      "report_page": 6,
+      "section": "7",
+      "sources": [
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_42/baseline_history.csv",
+          "sha256": "e0b9a290a942e76200966e922ecb2a83aad01b604bd059180b2b5ad85db5581c",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_42/treatment_history.csv",
+          "sha256": "685524b00a61af148a31e3430cff3194bd0c2669f52da50b82275b046566a64f",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_123/baseline_history.csv",
+          "sha256": "4130b97d975ebc61b5f9d0c76baa0fb0bb8a59001e099bbb85f6dd706a80bd65",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_123/treatment_history.csv",
+          "sha256": "81e6d3abdee428bc48c704a1915a9551186b3ab02f08518829f7e62a306f546f",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_2026/baseline_history.csv",
+          "sha256": "bcc1125e31bb80c71ff363524a1d9251b27b28d963c24f3f262ad3004feae913",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_2026/treatment_history.csv",
+          "sha256": "2b26d7d93aff890016c2f4036a38c9d95b5c11587a1907760a4836179beba9d7",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_42/baseline_metadata.json",
+          "sha256": "601cb90bf279996d120ecdc2e43cbd7e4c3a9aef73c84b0c368b3ecd29c0be42",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_42/treatment_metadata.json",
+          "sha256": "01a21effc25009c978320e11f1ce6395a04509401aa1758b08365edbc09c9708",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_123/baseline_metadata.json",
+          "sha256": "807bae51089d63507786875a3f137773515596f5be1ac56170591635d9476502",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_123/treatment_metadata.json",
+          "sha256": "abc83cc3916405247ad6a1bfb67c4701021027df44bc611e4e157de8d6b0cc43",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_2026/baseline_metadata.json",
+          "sha256": "16973ceb9d735a5e46563c030d58ce2e8798d2296d2abdacdee15e4330621bbf",
+          "source_run_id": "stage2-full"
+        },
+        {
+          "artifact": "stage2-trained-models",
+          "internal_path": "seed_2026/treatment_metadata.json",
+          "sha256": "b18a5f14cc772a61cc0fc952805c9059accf39dfc6d131a59a0c17582538655a",
+          "source_run_id": "stage2-full"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "cells": [
+        [
+          "Seed",
+          "Epoch baseline",
+          "Epoch treatment",
+          "Val WGA baseline",
+          "Val WGA treatment"
+        ],
+        [
+          42,
+          7,
+          4,
+          "35.00%",
+          "98.33%"
+        ],
+        [
+          123,
+          7,
+          7,
+          "5.00%",
+          "100.00%"
+        ],
+        [
+          2026,
+          1,
+          4,
+          "0.00%",
+          "100.00%"
+        ]
+      ],
+      "kind": "derived_table"
+    },
+    {
+      "id": "Tabel 5",
+      "report_page": 7,
+      "section": "8",
+      "sources": [
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/summary.json",
+          "sha256": "9ff3ee4f9984f385d985887a6822b8222ddb318e09dd9eb6d7f71b88ecc7b91d",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/summary.csv",
+          "sha256": "eb779866ece4e433cb9e8e33d5bcf0b205f2fbb5eecb432696c3b16b7c32b88e",
+          "source_run_id": "stage3-full-38874819983-1"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "cells": [
+        [
+          "Metrik (%)",
+          "Baseline mean ± SD",
+          "Treatment mean ± SD"
+        ],
+        [
+          "Overall accuracy",
+          "63.33 ± 19.24",
+          "99.51 ± 0.52"
+        ],
+        [
+          "Worst-group accuracy",
+          "18.33 ± 25.54",
+          "98.61 ± 1.73"
+        ],
+        [
+          "Background flip rate",
+          "73.33 ± 38.48",
+          "0.69 ± 0.64"
+        ],
+        [
+          "Paired correctness",
+          "26.67 ± 38.48",
+          "99.17 ± 0.83"
+        ],
+        [
+          "Akurasi sapi/pantai",
+          "34.17 ± 52.07",
+          "99.72 ± 0.48"
+        ],
+        [
+          "Akurasi sapi/rumput",
+          "100.00 ± 0.00",
+          "100.00 ± 0.00"
+        ],
+        [
+          "Akurasi kuda/rumput",
+          "19.17 ± 25.04",
+          "98.61 ± 1.73"
+        ],
+        [
+          "Akurasi kuda/pantai",
+          "100.00 ± 0.00",
+          "99.72 ± 0.48"
+        ]
+      ],
+      "kind": "derived_table"
+    },
+    {
+      "id": "Tabel 6",
+      "report_page": 7,
+      "section": "8",
+      "sources": [
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/metrics.json",
+          "sha256": "c620ea467bd79cc8b2232793f317e96d10c14ac1353a1de7fc02ec9e32187c27",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_123/metrics.json",
+          "sha256": "ffc497a8dc3cb02d3f4d7f04f4ac130450c1f0d7b3424518a23c05b04a8523be",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_2026/metrics.json",
+          "sha256": "84cba7814aa8188ef26d42c0cb7c8b41557a044e6c9de376dda163dfaa94514a",
+          "source_run_id": "stage3-full-38874819983-1"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "cells": [
+        [
+          "Seed / model",
+          "Overall",
+          "WGA",
+          "Flip",
+          "Pasangan benar"
+        ],
+        [
+          "42 / baseline",
+          "85.42%",
+          "47.50%",
+          "29.17%",
+          "170/240 (70.83%)"
+        ],
+        [
+          "42 / treatment",
+          "98.96%",
+          "96.67%",
+          "1.25%",
+          "236/240 (98.33%)"
+        ],
+        [
+          "123 / baseline",
+          "54.38%",
+          "7.50%",
+          "91.25%",
+          "21/240 (8.75%)"
+        ],
+        [
+          "123 / treatment",
+          "100.00%",
+          "100.00%",
+          "0.00%",
+          "240/240 (100.00%)"
+        ],
+        [
+          "2026 / baseline",
+          "50.21%",
+          "0.00%",
+          "99.58%",
+          "1/240 (0.42%)"
+        ],
+        [
+          "2026 / treatment",
+          "99.58%",
+          "99.17%",
+          "0.83%",
+          "238/240 (99.17%)"
+        ]
+      ],
+      "kind": "derived_table"
+    },
+    {
+      "id": "Tabel 7",
+      "report_page": 8,
+      "section": "8",
+      "sources": [
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/metrics.json",
+          "sha256": "c620ea467bd79cc8b2232793f317e96d10c14ac1353a1de7fc02ec9e32187c27",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_123/metrics.json",
+          "sha256": "ffc497a8dc3cb02d3f4d7f04f4ac130450c1f0d7b3424518a23c05b04a8523be",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_2026/metrics.json",
+          "sha256": "84cba7814aa8188ef26d42c0cb7c8b41557a044e6c9de376dda163dfaa94514a",
+          "source_run_id": "stage3-full-38874819983-1"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "cells": [
+        [
+          "Seed / model",
+          "Sapi / rumput",
+          "Sapi / pantai",
+          "Kuda / rumput",
+          "Kuda / pantai"
+        ],
+        [
+          "42 / baseline",
+          "120/120",
+          "113/120",
+          "57/120",
+          "120/120"
+        ],
+        [
+          "42 / treatment",
+          "120/120",
+          "120/120",
+          "116/120",
+          "119/120"
+        ],
+        [
+          "123 / baseline",
+          "120/120",
+          "9/120",
+          "12/120",
+          "120/120"
+        ],
+        [
+          "123 / treatment",
+          "120/120",
+          "120/120",
+          "120/120",
+          "120/120"
+        ],
+        [
+          "2026 / baseline",
+          "120/120",
+          "1/120",
+          "0/120",
+          "120/120"
+        ],
+        [
+          "2026 / treatment",
+          "120/120",
+          "119/120",
+          "119/120",
+          "120/120"
+        ]
+      ],
+      "kind": "derived_table"
+    },
+    {
+      "id": "Gambar 4",
+      "report_page": 8,
+      "section": "8",
+      "sources": [
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/metrics.json",
+          "sha256": "c620ea467bd79cc8b2232793f317e96d10c14ac1353a1de7fc02ec9e32187c27",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_123/metrics.json",
+          "sha256": "ffc497a8dc3cb02d3f4d7f04f4ac130450c1f0d7b3424518a23c05b04a8523be",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_2026/metrics.json",
+          "sha256": "84cba7814aa8188ef26d42c0cb7c8b41557a044e6c9de376dda163dfaa94514a",
+          "source_run_id": "stage3-full-38874819983-1"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "kind": "figure",
+      "figure_sha256": "5da6d7f0b5f6da2d83938272b6b5fdcc772a2e51b01d677c30250f420cd1d009",
+      "rgb_pixels_sha256": "8652510e0617adcf8818f73ee524c09d698c6502271d468ca8f782ee331b74cd",
+      "pixel_dimensions": [
+        1607,
+        471
+      ],
+      "seeds": [
+        42,
+        123,
+        2026
+      ]
+    },
+    {
+      "id": "Gambar 5",
+      "report_page": 8,
+      "section": "8",
+      "sources": [
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/metrics.json",
+          "sha256": "c620ea467bd79cc8b2232793f317e96d10c14ac1353a1de7fc02ec9e32187c27",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_123/metrics.json",
+          "sha256": "ffc497a8dc3cb02d3f4d7f04f4ac130450c1f0d7b3424518a23c05b04a8523be",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_2026/metrics.json",
+          "sha256": "84cba7814aa8188ef26d42c0cb7c8b41557a044e6c9de376dda163dfaa94514a",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/predictions.csv",
+          "sha256": "1dd7a3ac66fbab938fe84be1abf7fc53b364419b74585cac4168a1f1e11c0386",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_123/predictions.csv",
+          "sha256": "b9dd3e6ba3f2e35cd9a90cfe1f072c3fc51001cb431b166b3b17967e56b74cdf",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_2026/predictions.csv",
+          "sha256": "86db5888bc2813c0539ec84f7677e1da088ef5c794ee85cc70411db003ef3a17",
+          "source_run_id": "stage3-full-38874819983-1"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "kind": "figure",
+      "figure_sha256": "5b480671bc56e90986fe2a20e56766531f85f51dcce0acf2355aced12a97beb5",
+      "rgb_pixels_sha256": "afe15103803bfcb44068c1654e9fde33b7aecd4e5e05f27c167a96dcafd5fb5b",
+      "pixel_dimensions": [
+        1396,
+        740
+      ],
+      "seeds": [
+        42,
+        123,
+        2026
+      ]
+    },
+    {
+      "id": "Gambar 6",
+      "report_page": 9,
+      "section": "9",
+      "sources": [
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/test_inputs.npz",
+          "sha256": "89d32702842986871ee2cf729d46c5ae3b5332223ef214c40fd263d600272b12",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/model_disagreements.csv",
+          "sha256": "0db13acafdbd030707cdf64ebcec6d5629c84675dec7db80d4f4bda7bc168c11",
+          "source_run_id": "stage3-full-38874819983-1"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "kind": "figure",
+      "figure_sha256": "957ba758544a133026eddc4509568d072da63e90375687f97a4e061e3b72b296",
+      "rgb_pixels_sha256": "2e486341968fa762b815d701bd84ba217c25db78bac224119e54fa7cb3611afd",
+      "pixel_dimensions": [
+        931,
+        851
+      ],
+      "images": [
+        {
+          "seed": 42,
+          "image_id": "s42-image-002272",
+          "pair_id": "pair-s42-f-00329"
+        },
+        {
+          "seed": 42,
+          "image_id": "s42-image-002273",
+          "pair_id": "pair-s42-f-00329"
+        },
+        {
+          "seed": 42,
+          "image_id": "s42-image-002716",
+          "pair_id": "pair-s42-h-00499"
+        },
+        {
+          "seed": 42,
+          "image_id": "s42-image-002717",
+          "pair_id": "pair-s42-h-00499"
+        }
+      ],
+      "seed": 42
+    },
+    {
+      "id": "Tabel 8",
+      "report_page": 9,
+      "section": "9",
+      "sources": [
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/predictions.csv",
+          "sha256": "1dd7a3ac66fbab938fe84be1abf7fc53b364419b74585cac4168a1f1e11c0386",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/counterfactual_pairs.csv",
+          "sha256": "0c6f99bb4e95a15612affa49267107540121a69888de06b1a7e5453288a2e205",
+          "source_run_id": "stage3-full-38874819983-1"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "cells": [
+        [
+          "Image ID / aktual",
+          "Latar",
+          "Baseline prediksi; P(sapi)",
+          "Treatment prediksi; P(sapi)"
+        ],
+        [
+          "s42-image-002272 / sapi",
+          "grass",
+          "sapi; 0.999988 (benar)",
+          "sapi; 0.999329 (benar)"
+        ],
+        [
+          "s42-image-002273 / sapi",
+          "beach",
+          "kuda; 0.446833 (salah)",
+          "sapi; 0.984271 (benar)"
+        ],
+        [
+          "s42-image-002716 / kuda",
+          "grass",
+          "sapi; 0.969768 (salah)",
+          "sapi; 0.721413 (salah)"
+        ],
+        [
+          "s42-image-002717 / kuda",
+          "beach",
+          "kuda; 0.484357 (benar)",
+          "sapi; 0.510905 (salah)"
+        ]
+      ],
+      "kind": "derived_table"
+    },
+    {
+      "id": "Gambar 7",
+      "report_page": 10,
+      "section": "10",
+      "sources": [
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/test_inputs.npz",
+          "sha256": "89d32702842986871ee2cf729d46c5ae3b5332223ef214c40fd263d600272b12",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/baseline_heatmaps.npz",
+          "sha256": "672d296f260ef52d9c663b7c7063a9e97e03e84f7f018364f63f0da016611bb7",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/treatment_heatmaps.npz",
+          "sha256": "246f366e57b46ca8424520536d4a50e841f2ab1be1ddfaaf0c8335090bd4ccab",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/attribution.csv",
+          "sha256": "bd999c1ee1c9dc6e0bda2e0d1f5bbd495b724bac5e7675b0336e1d22e36b59d7",
+          "source_run_id": "stage3-full-38874819983-1"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "kind": "figure",
+      "figure_sha256": "f2ffb9622f8090b01496057171930f350acc31859fb88b490f193c152d6d19af",
+      "rgb_pixels_sha256": "2ddb11dd37995b8a524c3b78d473c06da347975c5b2c8132ba64d1f2ac88d9da",
+      "pixel_dimensions": [
+        1270,
+        815
+      ],
+      "seed": 42,
+      "images": [
+        {
+          "run_id": "stage3-full-38874819983-1",
+          "seed": 42,
+          "image_id": "s42-image-002273",
+          "pair_id": "pair-s42-f-00329",
+          "foreground_id": "s42-f-00329",
+          "y_true": "1",
+          "object_label": "cow",
+          "background_label": "beach",
+          "baseline_predicted": "0",
+          "treatment_predicted": "1",
+          "baseline_prob_cow": "0.4468327098517502",
+          "treatment_prob_cow": "0.984271499724503",
+          "baseline_correct": "0",
+          "treatment_correct": "1",
+          "probability_change": "0.5374387898727528",
+          "disagree": "1",
+          "outcome": "treatment_only"
+        },
+        {
+          "run_id": "stage3-full-38874819983-1",
+          "seed": 42,
+          "image_id": "s42-image-002717",
+          "pair_id": "pair-s42-h-00499",
+          "foreground_id": "s42-h-00499",
+          "y_true": "0",
+          "object_label": "non_cow",
+          "background_label": "beach",
+          "baseline_predicted": "0",
+          "treatment_predicted": "1",
+          "baseline_prob_cow": "0.4843566639383618",
+          "treatment_prob_cow": "0.5109054377841706",
+          "baseline_correct": "1",
+          "treatment_correct": "0",
+          "probability_change": "0.026548773845808837",
+          "disagree": "1",
+          "outcome": "baseline_only"
+        }
+      ],
+      "target": "true_class"
+    },
+    {
+      "id": "Tabel 9",
+      "report_page": 10,
+      "section": "10",
+      "sources": [
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_42/metrics.json",
+          "sha256": "c620ea467bd79cc8b2232793f317e96d10c14ac1353a1de7fc02ec9e32187c27",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_123/metrics.json",
+          "sha256": "ffc497a8dc3cb02d3f4d7f04f4ac130450c1f0d7b3424518a23c05b04a8523be",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/seed_2026/metrics.json",
+          "sha256": "84cba7814aa8188ef26d42c0cb7c8b41557a044e6c9de376dda163dfaa94514a",
+          "source_run_id": "stage3-full-38874819983-1"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "cells": [
+        [
+          "Seed",
+          "Zero B / T",
+          "FG share B",
+          "FG share T"
+        ],
+        [
+          42,
+          "202 / 0",
+          "27.13%",
+          "19.17%"
+        ],
+        [
+          123,
+          "78 / 0",
+          "15.66%",
+          "17.08%"
+        ],
+        [
+          2026,
+          "88 / 0",
+          "16.84%",
+          "19.85%"
+        ]
+      ],
+      "kind": "derived_table"
+    },
+    {
+      "id": "Gambar 8",
+      "report_page": 11,
+      "section": "10",
+      "sources": [
+        {
+          "artifact": "stage4-dashboard-review",
+          "internal_path": "dashboard-review/1440-model.png",
+          "sha256": "544000c2cc180104dec29edb83be8d297a41a6b4b673647cb20f853f8c3a65a9",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage4-dashboard-review",
+          "internal_path": "dashboard-review/browser-review.json",
+          "sha256": "66975c4be2f0b0b7153b6cc062b61a103e7ba45e654539a5241c700d2e402a60",
+          "source_run_id": "stage3-full-38874819983-1"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "kind": "figure",
+      "figure_sha256": "544000c2cc180104dec29edb83be8d297a41a6b4b673647cb20f853f8c3a65a9",
+      "rgb_pixels_sha256": "a0261eb374c24f31286a11ab31977b0f8064341554b858da9337c6266e6c8e79",
+      "pixel_dimensions": [
+        1440,
+        1000
+      ],
+      "seed": 123,
+      "image_id": "s123-image-002324",
+      "evidence_type": "actual Chromium screenshot"
+    },
+    {
+      "id": "Gambar 9",
+      "report_page": 11,
+      "section": "10.1",
+      "sources": [
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/figures/cross_seed_summary.png",
+          "sha256": "95f7bd00edc60e137e99df23dc31d908536a5aa92c1de14a144e9a45d9f54f40",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/summary.csv",
+          "sha256": "eb779866ece4e433cb9e8e33d5bcf0b205f2fbb5eecb432696c3b16b7c32b88e",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/summary.json",
+          "sha256": "9ff3ee4f9984f385d985887a6822b8222ddb318e09dd9eb6d7f71b88ecc7b91d",
+          "source_run_id": "stage3-full-38874819983-1"
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "kind": "figure",
+      "figure_sha256": "95f7bd00edc60e137e99df23dc31d908536a5aa92c1de14a144e9a45d9f54f40",
+      "rgb_pixels_sha256": "9c4aca4f548905e65307ec865840431715af032b3b8f5e5c3283092ac154f1e0",
+      "pixel_dimensions": [
+        1773,
+        747
+      ],
+      "seeds": [
+        42,
+        123,
+        2026
+      ],
+      "evidence_type": "original scientific figure"
+    },
+    {
+      "id": "Tabel 10",
+      "report_page": 12,
+      "section": "11",
+      "sources": [
+        {
+          "artifact": "stage3-scientific-results",
+          "internal_path": "stage3-full-38874819983-1/summary.json",
+          "sha256": "9ff3ee4f9984f385d985887a6822b8222ddb318e09dd9eb6d7f71b88ecc7b91d",
+          "source_run_id": "stage3-full-38874819983-1"
+        },
+        {
+          "artifact": "repository",
+          "internal_path": "docs/methodology.md",
+          "sha256": "5fc428667361c42b358f9b2fb75a538f61e35a5066cbeb4b991a9f7cdfe08904",
+          "source_run_id": null
+        }
+      ],
+      "generation_command": "python scripts/export_report.py --run-id stage3-full-38874819983-1 --artifact-root artifacts/evidence/stage3-scientific-results --training-run artifacts/evidence/stage2-trained-models --archive-dir artifacts/evidence --stage4-root artifacts/evidence/stage4-dashboard-review --output docs/task-3-report.pdf --manifest docs/evidence-manifest.json",
+      "generation_script": "src/cowbias/report.py",
+      "cells": [
+        [
+          "Aspek",
+          "Keterbatasan"
+        ],
+        [
+          "Validitas eksternal",
+          "Citra sintetis prosedural, hanya renderer sapi/kuda dan latar rumput/pantai. Generalisasi terhadap foto nyata belum diuji."
+        ],
+        [
+          "Replikasi terbatas",
+          "Hanya tiga seed yang bersama-sama mengubah data dan inisialisasi; variasi masing-masing faktor tidak dipisahkan."
+        ],
+        [
+          "Dependensi observasi",
+          "Dua citra test berbagi foreground. Tidak ada analisis signifikansi konfirmatori atau klaim interval kepercayaan."
+        ],
+        [
+          "Artefak generator",
+          "Pola rendering, resolusi rendah, compositing, dan tepi alfa dapat menyediakan petunjuk lain. Audit kebocoran tidak meniadakan seluruh bias generator."
+        ],
+        [
+          "Bukti atribusi",
+          "Peta Grad-CAM kasar, normalisasi per citra, zero maps, dan kohort nonzero berbeda membatasi interpretasi kausal."
+        ],
+        [
+          "Kesalahan residual",
+          "Treatment masih memiliki 7 prediksi salah dan 1 kesalahan baru dibanding baseline; tidak ada klaim robustness universal."
+        ]
+      ],
+      "kind": "derived_table"
+    }
+  ],
+  "scientific_totals": {
+    "treatment_corrected": 522,
+    "new_errors": 1
+  },
+  "pdf_checks": {
+    "status": "PASS",
+    "pages": 13,
+    "tables": 10,
+    "figures": 9,
+    "hyperlinks": 8,
+    "table_cells": "all present on declared pages",
+    "figure_pixels": "all match original/derived source raster pixels",
+    "text_bounds": "PASS",
+    "selectable_text_sha256": "98cb3654c3c1bec16df7b5b0b64e2f6c50a34b0a7e46879e50b4909b1414ab35",
+    "visual_inspection": "Requires rendered-page human/agent inspection; not inferred here"
+  }
+}

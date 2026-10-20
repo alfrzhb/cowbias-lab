@@ -1,0 +1,110 @@
+name: Stage 5 final scientific and report acceptance
+
+on:
+  push:
+    branches: [feat/stage-5-final-qa-report]
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: 'Full reviewed source commit (empty uses the workflow commit)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: stage5-acceptance-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ runner.temp }}/cowbias-clean
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REVIEWED_SOURCE: ${{ inputs.source_sha || github.sha }}
+      COWBIAS_TEST_FULL_RUN: artifacts/runs/downloaded-stage3/stage3-full-38874819983-1
+      COWBIAS_TEST_EVIDENCE: artifacts/evidence
+      PYTEST_ADDOPTS: --basetemp=artifacts/qa/pytest-temp
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ inputs.source_sha || github.sha }}
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Fresh clone of exactly the reviewed source
+        working-directory: ${{ github.workspace }}
+        run: |
+          [[ "$REVIEWED_SOURCE" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$REVIEWED_SOURCE"
+          git clone --no-local . "$RUNNER_TEMP/cowbias-clean"
+          test "$(git -C "$RUNNER_TEMP/cowbias-clean" rev-parse HEAD)" = "$REVIEWED_SOURCE"
+          python -m venv "$RUNNER_TEMP/cowbias-clean/.venv"
+          echo "$RUNNER_TEMP/cowbias-clean/.venv/bin" >> "$GITHUB_PATH"
+      - name: Install isolated environment
+        run: |
+          python -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install numpy==2.5.4 Pillow==12.3.0 PyYAML==6.0.3 matplotlib==3.10.8
+          python -m pip install -e '.[eval,ui,dev,browser,report]'
+          python -m playwright install --with-deps chromium --only-shell
+          mkdir -p artifacts/qa
+          python -m pip freeze > artifacts/qa/environment.txt
+          git rev-parse HEAD > artifacts/qa/reviewed-source.txt
+      - name: Recover exact original archives with authenticated access
+        run: |
+          python scripts/archive_evidence.py --download --extract --directory artifacts/evidence --manifest artifacts/qa/archive-manifest.json
+          python scripts/prepare_dashboard.py --archive artifacts/evidence/stage3-scientific-results.zip --output artifacts/runs/downloaded-stage3 > artifacts/qa/prepare-original.json
+      - name: Complete regression and report tests
+        run: |
+          set -o pipefail
+          python -m pytest -q -rs | tee artifacts/qa/pytest.txt
+          python -m ruff check . | tee artifacts/qa/ruff.txt
+      - name: Original dataset deterministic regeneration and leakage audit
+        run: |
+          python scripts/prepare_data.py --config artifacts/evidence/stage2-trained-models/dataset_generation.yaml --output artifacts/runs/data-replay > artifacts/qa/data-replay.txt
+          python scripts/verify_dataset_identity.py --training-run artifacts/evidence/stage2-trained-models --data-run artifacts/runs/data-replay > artifacts/qa/data-identity.txt
+      - name: Genuine small training and held-out evaluation smoke
+        run: |
+          python scripts/run_experiment.py --smoke --device cpu --output artifacts/runs/fresh-smoke > artifacts/qa/training-smoke.txt
+          python scripts/verify_checkpoints.py --run artifacts/runs/fresh-smoke > artifacts/qa/checkpoint-smoke.json
+          python scripts/evaluate_experiment.py --training-run artifacts/runs/fresh-smoke --data-run artifacts/runs/fresh-smoke/datasets --seeds 42 --smoke --device cpu --output artifacts/runs/fresh-evaluation > artifacts/qa/evaluation-smoke.txt
+          python scripts/verify_evaluation.py --run artifacts/runs/fresh-evaluation > artifacts/qa/verify-smoke.json
+      - name: Full evidence dashboard consistency and Chromium review
+        run: |
+          python scripts/verify_dashboard.py --run "$COWBIAS_TEST_FULL_RUN" --output artifacts/qa/dashboard/consistency.json
+          python scripts/review_dashboard.py --run "$COWBIAS_TEST_FULL_RUN" --output artifacts/qa/dashboard > artifacts/qa/browser.txt
+      - name: Generate academic report and compare to reviewed PDF
+        run: |
+          python scripts/export_report.py --run-id stage3-full-38874819983-1 --stage4-root artifacts/evidence/stage4-dashboard-review --output artifacts/qa/task-3-report.pdf --manifest artifacts/qa/evidence-manifest.json > artifacts/qa/report-generation.json
+          python scripts/verify_report.py --pdf artifacts/qa/task-3-report.pdf --manifest artifacts/qa/evidence-manifest.json --compare-manifest docs/evidence-manifest.json --render-dir artifacts/qa/report-pages > artifacts/qa/pdf-validation.json
+      - name: Actionable acceptance summary
+        if: always()
+        env:
+          ACCEPTANCE_STATUS: ${{ job.status }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          text = f"Stage 5 acceptance: {os.environ['ACCEPTANCE_STATUS']}\n\nReviewed source: `{os.environ['REVIEWED_SOURCE']}`\n\n"
+          text += "Download stage5-final-review: generated PDF, all rendered pages, numerical/pixel verification, original archive member manifest, regression/smoke logs, and browser evidence. Inspect rendered pages before approving.\n\n"
+          text += "Durable access-controlled archival remains PENDING. Actions retention is not permanent preservation. No merge or public research-archive upload is performed.\n"
+          Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(text)
+          PY
+      - name: Upload report and final QA evidence (no bulk scientific archives)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: stage5-final-review
+          path: |
+            ${{ runner.temp }}/cowbias-clean/artifacts/qa/**
+            !${{ runner.temp }}/cowbias-clean/artifacts/qa/pytest-temp/**
+          if-no-files-found: error
+          retention-days: 90
