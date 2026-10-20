@@ -20,6 +20,7 @@ ml = ["torch>=2.6"]
 eval = ["torch>=2.6", "matplotlib>=3.9"]
 app = ["streamlit>=1.35"]
 ui = ["streamlit==1.66.0", "pandas>=2.2", "altair>=5.4,<7", "matplotlib>=3.9"]
+report = ["reportlab==5.0.1", "PyMuPDF==2.0", "matplotlib>=3.9"]
 browser = ["playwright==1.55.0"]
 dev = [
   "pytest>=8.0",

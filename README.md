@@ -1,614 +1,222 @@
 # CowBias Lab
 
-A reproducible synthetic experiment for studying spurious correlations between animal identity and background. The motivating case is a cow classifier that relies on grass and fails on a beach.
+A controlled synthetic experiment asking whether balancing training backgrounds reduces the
+cow/grass shortcut and improves recognition of a cow on a beach. Two real CNNs are trained
+from the same initial weights and evaluated on identical held-out images.
 
-**Status: Stages 1–4 implement audited data, frozen CNN training, verified held-out evaluation, counterfactual analysis, genuine Grad-CAM and a five-tab Streamlit dashboard.** The final academic report remains Stage 5. See the [dashboard guide](docs/dashboard-guide.md), [methodology](docs/methodology.md) and [Stage 3 execution evidence](docs/stage3-results.md). Validation scores below describe checkpoint selection, separately from held-out results.
+**Stages 1-4 are merged. Stage 5 provides the academic report, reproducible export, evidence
+traceability and final acceptance; its PR requires independent review before merging.**
 
-Requirements: [docs/PRD.md](docs/PRD.md). Implementation sequence: [docs/PLAN.md](docs/PLAN.md).
+- [Academic report, Indonesian PDF](docs/task-3-report.pdf)
+- [Reproducibility, archival status and QA](docs/reproducibility.md)
+- [Five-minute presentation and lecturer questions](docs/dashboard-guide.md)
+- [Scientific methodology](docs/methodology.md), [original results](docs/stage3-results.md)
+- [Evidence manifest](docs/evidence-manifest.json), [PRD](docs/PRD.md), [PLAN](docs/PLAN.md)
 
-## Stage 4: interactive research dashboard
+## Assignment and research scope
 
-A read-only Streamlit presentation of the **original verified Stage 3 artifact**. Reviewers can
-inspect genuine foreground pairs, frozen model predictions, held-out metrics and saved Grad-CAM
-in [3–5 minutes](docs/dashboard-guide.md). The UI performs no training, model inference, threshold
-changes or scientific reevaluation.
+Tugas 3, Artificial Intelligence, Magister Informatika, UIN Sunan Kalijaga, asks for a system
+implementing treatment for fake correlation and a visualization explaining that treatment.
+The provided example is a cow classifier that fails when grass changes to beach. The exact
+instruction is quoted in the report. The original DOCX was not available in the Stage 5 workspace;
+the supplied text and repository PRD were used. No lecturer rubric or deadline is invented.
 
-![Actual desktop Streamlit application](docs/images/dashboard-desktop.png)
+Synthetic cow/horse renderers, CNN, three seeds, WGA, Grad-CAM, Streamlit and GitHub are **project
+decisions**, not additional lecturer requirements. The assignment does not explicitly require
+combining Deep Learning, LLM and Generative AI. This implementation uses Deep Learning.
 
-<details>
-<summary>Actual mobile application at 390px</summary>
+## Implemented architecture
 
-![Actual mobile Streamlit application](docs/images/dashboard-mobile.png)
-
-</details>
-
-### Install, prepare, verify, start
-
-Use Python 3.11+; full artifact/browser acceptance runs on Python 3.12. Preparation invokes the
-existing Stage 3 scientific verifier and requires `eval` dependencies. The running UI imports
-no Torch or checkpoint code and only needs `ui`; it works on CPU without a GPU.
-
-```bash
-python -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
-python -m pip install -e '.[ui,eval,dev]'
-
-# Existing authorized gh authentication is used for the private Actions artifact.
-python scripts/prepare_dashboard.py
-
-# Alternative: an original ZIP downloaded through authorized GitHub access.
-# Choose this instead of the command above, or use a NEW output directory.
-python scripts/prepare_dashboard.py --archive /path/to/stage3-scientific-results.zip \
-  --output artifacts/runs/downloaded-stage3
-
-python scripts/verify_evaluation.py \
-  --run artifacts/runs/downloaded-stage3/stage3-full-38874819983-1 --require-full
-python scripts/verify_dashboard.py \
-  --run artifacts/runs/downloaded-stage3/stage3-full-38874819983-1
-
-COWBIAS_EVAL_ROOT=artifacts/runs/downloaded-stage3/stage3-full-38874819983-1 \
-  streamlit run app/streamlit_app.py
+```mermaid
+flowchart TD
+  A[Procedural 2D source generator] --> B[Source-disjoint train / validation / test]
+  B --> C[Baseline CNN: 97:3]
+  B --> D[Treatment CNN: 50:50]
+  C --> E[Validation checkpoint selection]
+  D --> E
+  E --> F[Identical held-out evaluation]
+  F --> G[Counterfactual pairs and Grad-CAM]
+  G --> H[Streamlit and academic PDF]
 ```
 
-For PowerShell set `$env:COWBIAS_EVAL_ROOT="artifacts/runs/downloaded-stage3/stage3-full-38874819983-1"`
-then run `streamlit run app/streamlit_app.py`. Without this variable, discovery checks run directories
-up to two levels below `artifacts/runs`, preferring the named full run. Run/seed choice is explicit;
-it never guesses the newest artifact or mixes seeds.
+Source modules are `data/` (generation/audit), `models/` and `training/` (paired optimization),
+`evaluation/` (frozen evaluation and independent verification), `dashboard/` (read-only UI),
+`report_data.py`, `report.py`, `report_verification.py`, and `evidence.py` (Stage 5).
 
-Preparation checks Actions workflow **38874819983**, artifact **12035480745**, name, expiry and
-original ZIP digest **75b42453cde76bb6b5e7f5c1db903908b592439949a324e79f8ff17186dbb0d4**.
-It rejects traversal, symlinks, duplicate members, oversized extraction and existing output paths.
-The ZIP contains the named evaluation folder plus external diagnostics. Full independent
-verification runs once before the preparation is atomically published. A receipt outside the
-scientific directory binds run ID, archive hash, all file hashes, verification result and UTC time.
-Original scientific files are never edited. No authenticated GitHub requests occur on widget changes.
+## Data and treatment
 
-Runtime validates receipt, inventory, hashes, completion, schemas and checkpoint/manifest identity.
-Cache keys include run path and file fingerprints (including nanosecond modification/change times).
-Only the active tab and seed load image/heatmap arrays; `allow_pickle=False` and shape/dtype/range
-checks protect NPZ loading. Full verification never runs on a widget rerender. Receipts detect
-local corruption, not a malicious party rewriting an entire unsigned bundle.
-
-### Five scientific sections
-
-| Section | Working features |
-|---|---|
-| Overview | Research question, four groups, baseline/treatment, shared CNN, experimental flow and saved mean ± sample SD results |
-| Dataset Explorer | Manifest-derived train/validation/test counts, original test RGB pairs and active-image metadata |
-| Model Comparison | Exact saved predictions for one image; probability of cow, explicit CORRECT/INCORRECT, checkpoint identity and pair sensitivity |
-| Evaluation | WGA, overall/four-group accuracy, genuine confusion counts, flip/paired correctness, probability sensitivity, disagreements, corrections and regressions |
-| Explainability & Export | Same-image true-target Grad-CAM, zero-map handling, attribution measures, original scientific downloads and traceable overlay PNGs |
-
-The sidebar holds run/seed, verification, provenance and limitations. The three inspection sections
-share filters, pair and background. Grass/Beach changes only the background member of the same
-foreground pair. Outcome filters match either background and initially show the matching image.
-New treatment errors and both-wrong cases remain selectable; absent categories show honest empty
-states. Seed/run changes reset incompatible selections.
-
-Only **test pixels** are available. Training and validation counts come from verified manifests;
-the app does not pretend their images are present. WGA is the minimum group accuracy. Read flip
-rate with paired correctness, because stability can conceal consistently incorrect predictions.
-Sample SD is descriptive across three seeds, not a confidence interval. Numeric SD values are
-retained even when mean ± SD extends outside the physical percentage range.
-
-Grad-CAM targets the true class: cow `logit`, horse `-logit`, shared across both models. Saved maps
-use individual positive-peak normalization and inferno at alpha 0.50. A zero map stays zero: the
-original input is shown with a zero-map explanation, and shares/enrichment are **undefined**.
-ReLU suppression can produce zero maps despite nonzero gradients. Attribution findings remain
-mixed; treatment does not uniformly move localization toward foreground, and foreground share
-or Grad-CAM alone does not establish background independence.
-
-Scientific CSV/JSON/PNG downloads preserve original bytes and are checked against receipt hashes.
-Selected overlay PNGs embed seed, image ID, model, true target, checkpoint/manifest references and
-attribution metadata. The displayed export/figure source identifies the active seed. Browser
-acceptance downloads, reopens and byte-compares CSV/JSON/figures for two seeds; the zero-map overlay
-is also decoded and compared pixel-for-pixel with its exact original model input.
-
-An absent run shows **Experiment not yet run** with preparation instructions and no fictitious
-metrics. Unprepared, incomplete or corrupted runs fail clearly. Missing images/pairs/maps never
-cause silent substitution. Genuine zero Grad-CAM is treated as valid evidence.
-
-### Automated tests and remote review
-
-```bash
-python -m pytest -q -rs
-python -m ruff check .
-COWBIAS_TEST_FULL_RUN=artifacts/runs/downloaded-stage3/stage3-full-38874819983-1 \
-  python -m pytest -q
-python -m pip install -e '.[browser]'
-python -m playwright install --with-deps chromium --only-shell
-python scripts/review_dashboard.py \
-  --run artifacts/runs/downloaded-stage3/stage3-full-38874819983-1
-```
-
-Routine Python 3.11/3.12 CI preserves all Stage 1–3 tests and training/evaluation smoke, adds
-Stage 4 fixtures, Ruff, AppTest and HTTP startup smoke. Seven full-artifact tests intentionally
-skip when `COWBIAS_TEST_FULL_RUN` is unset. They all execute in the separate
-[full dashboard acceptance workflow](.github/workflows/dashboard-acceptance.yml), which downloads
-and verifies the pinned scientific bundle. These skips do not replace a full acceptance run.
-
-The full acceptance job launches real Streamlit, tests all five tabs, seeds/outcomes/pairs,
-background toggling, actual predictions, zero maps, exports, missing data and 1440/1280/390px
-viewports. Browser checks wait on rendered seed/image/outcome/export identities and native
-script/sidebar state; they do not use arbitrary widget sleeps. The job uploads the private
-**stage4-dashboard-review** artifact with screenshots, downloaded files, consistency JSON, browser
-results, receipt and logs. Download it from a successful run's Artifacts section on a phone.
-The workflow uses only `contents: read` and `actions: read`; no public endpoint or new secret is used.
-
-For a development fixture, run the existing offline smoke CLIs, then explicitly prepare it:
-
-```bash
-python scripts/run_experiment.py --smoke --device cpu --output artifacts/runs/dev-training
-python scripts/evaluate_experiment.py --training-run artifacts/runs/dev-training \
-  --data-run artifacts/runs/dev-training/datasets --seeds 42 --smoke \
-  --output artifacts/runs/dev-evaluation
-python scripts/prepare_dashboard.py --fixture-run artifacts/runs/dev-evaluation
-COWBIAS_FIXTURE=1 COWBIAS_EVAL_ROOT=artifacts/runs/dev-evaluation \
-  streamlit run app/streamlit_app.py
-```
-
-Fixtures use genuinely optimized small models, are separate from full evidence, and display
-**DEVELOPMENT FIXTURE — NOT FINAL SCIENTIFIC RESULTS**. There are no hand-entered performance
-numbers or fabricated fallback data. Full checkpoint models are never retrained for the dashboard.
-
-The Stage 3 artifact expires **14 January 2027, 08:36:30 UTC**. Preserve the original ZIP before
-expiry for longer use; preparation cannot retrieve a deleted/expired artifact. Dashboard review
-artifacts use 90-day retention. Bulk scientific data and checkpoints are excluded from Git.
-
-Three seeds jointly vary data and initialization, and background pairs share foreground identity.
-No confirmatory significance claim or real-photo generalization is established. Stage 4 provides
-demonstration evidence for Stage 5; it does not produce the final academic PDF or merge its PR.
-
-## Install and generate
-
-Python **3.11+** is required; verification used Python 3.12.14. Run from the repository root:
-
-```bash
-python -m venv .venv
-# Activate .venv using the command appropriate for your OS.
-python -m pip install -e '.[dev]'
-python scripts/prepare_data.py --config config/experiment.yaml
-python -m pytest -q
-ruff check .
-```
-
-Generation runs all configured seeds (`42`, `123`, `2026`), producing **2,720 composites per seed** and 8,160 in total. Core dependencies are NumPy, Pillow and PyYAML. Stage 2 adds the `ml` extra (PyTorch); `ui` provides the optional Stage 4 dashboard. Stage 1 requires no GPU or PyTorch.
-
-```bash
-python scripts/prepare_data.py --help
-
-# Optional: one configured seed and an explicit, NEW output directory.
-python scripts/prepare_data.py --config config/experiment.yaml \
-  --seeds 42 --output artifacts/runs/my-stage1-run
-```
-
-Default output is `artifacts/runs/<UTC-time>-<unique-suffix>/`. Relative paths, including `artifacts.root` and `--output`, resolve from the current working directory. Every generation gets a new directory. An existing explicit output directory is rejected without modifying its contents. Failed partial runs remain available for diagnosis; rerun into a new directory.
-
-## Dataset and intervention
-
-| Dataset | Cow + grass | Cow + beach | Non-cow + grass | Non-cow + beach | Total |
+| Per seed | Cow/grass | Cow/beach | Horse/grass | Horse/beach | Total |
 |---|---:|---:|---:|---:|---:|
 | Baseline train | 485 | 15 | 15 | 485 | 1,000 |
 | Treatment train | 250 | 250 | 250 | 250 | 1,000 |
 | Shared validation | 60 | 60 | 60 | 60 | 240 |
 | Shared test | 120 | 120 | 120 | 120 | 480 |
 
-`non_cow` is a horse surrogate. Every dataset is class-balanced. Baseline has a 97:3 majority/minority background ratio for each class. Treatment uses the **exact same 1,000 training foreground instances**, with the same pixels, pose, geometry, scale and placement; foreground record order is also identical, so matching DataLoader shuffle seeds can preserve minibatch membership. Only background assignment changes. Assignment is randomized with exact 50:50 background quotas per label.
+Each seed (42, 123, 2026) has 2,720 composites across the two training arms and shared evaluation
+splits. Training arms reuse the same 1,000 foreground instances in the same order. Treatment
+changes only the randomized background assignment, with exact 50:50 quotas per label; it is
+**not fine-tuning** of a baseline checkpoint. Test has 240 genuine foreground pairs per seed.
 
-There is one shared validation set and one shared test set per seed for both models. Test has 240 unique foregrounds (120 per class), each on both grass and beach with one `pair_id`. Validation has 240 independent, unpaired foregrounds.
+Original foreground/background identities and families are assigned to splits before rendering.
+The audit checks IDs, family/hash leakage, exact quotas, deterministic source and assignment replay,
+all reconstructed composites, and paired masks/opaque foreground pixels. Soft-alpha edge pixels
+can change with the background. Images are procedural RGB 48×48; model inputs are RGB 32×32.
+No stock photographs or fabricated replacement images are used.
 
-The renderer varies coat palette, patches, body proportions, legs/pose, scale, placement, orientation and rotation. Both species share nuisance-parameter distributions and the same rendering/compositing method. Landscapes vary texture, color, lighting, horizon, clouds and shoreline or vegetation. Image files contain no text, watermarks or embedded class metadata. Contact sheet captions are outside the sample pixels.
+## Install and smoke pipeline
 
-## Source isolation and audit
-
-Original foreground and background IDs are allocated to train/val/test **before rendering or compositing**. Each original is generated from an independent stream keyed by seed and source ID. Each original has a family ID; future derivatives must inherit that family and split. The current renderer uses continuous procedural variations rather than a finite library of shared animal or texture originals.
-
-Each foreground has a grass asset and a beach asset allocated inside its split. Training variants can intentionally reuse these assets within train. Source IDs, family IDs and identical source-file hashes may never cross splits. Unused background originals stay in the source catalog and are audited too.
-
-Generation runs the audit automatically and fails nonzero on violations. Re-audit an existing seed directory:
-
-```bash
-python scripts/prepare_data.py --config config/experiment.yaml \
-  --audit artifacts/runs/my-stage1-run/seed_42/data
-```
-
-Audit checks exact counts and all four groups, class balance, unique composite IDs and paths, source/family/hash overlap, matching training foreground order, catalog/manifest agreement, file readability and dimensions, source checksums, and source regeneration from the recorded seed. It independently replays `allocate_sources()` and `background_assignments()` from the saved configuration and seed, checking every record's identity/order, foreground, label, background category and asset, split, variant and pair ID. A background swap that preserves quotas and is correctly recomposited still fails if it disagrees with the seeded assignments.
-
-The audit reconstructs **every composite** from the original RGBA foreground and RGB background and compares its full pixels. Test masks and opaque foreground pixels must be identical within each pair, while visible background pixels must change. Soft alpha boundary pixels naturally blend with the new background; equality is verified against exact alpha compositing rather than requiring those blended pixels to stay unchanged.
-
-`audit.json` records PASS or FAIL. A failing re-audit replaces a stale PASS with the actual failure and raises an informative error. Invalid datasets are never silently repaired. Inspect `contact_sheet.png` for representative held-out groups and true test pairs; automated integrity checks do not replace visual inspection.
-
-## Output artifacts
-
-```text
-artifacts/runs/<run_id>/
-  run_config.json
-  seed_42/data/
-    dataset_config.json
-    source_allocation.json
-    sources.csv
-    sources/foreground/*.png
-    sources/background/*.png
-    images/*.png
-    masks/*.png
-    manifest.csv
-    audit.json
-    group_distribution.csv
-    group_distribution.md
-    contact_sheet.png
-  seed_123/data/...
-  seed_2026/data/...
-```
-
-| Artifact | Contents |
-|---|---|
-| `run_config.json` | Config, seeds, dependency/Python versions, code revision, dirty-tree flag, source-code hashes and input-config SHA-256 |
-| `dataset_config.json` | Per-seed configuration, seed, generator version and synthetic origin |
-| `source_allocation.json` | Frozen source identities and splits, exported before any image is rendered |
-| `sources.csv` | Original source ID, family, type, label, split, seed, asset association, relative path and SHA-256 |
-| `images/`, `masks/` | 48×48 RGB composites and matching 8-bit alpha masks; RGBA originals remain in `sources/foreground/` |
-| `manifest.csv` | Required image/source/label/split/variant/pair/seed/path fields, plus `mask_path` and both family IDs |
-| `audit.json`, distribution tables | Machine-readable invariant results and four-group counts |
-| `contact_sheet.png` | Enlarged validation examples and unchanged-foreground test pairs |
-
-All manifest and source paths are relative to the corresponding `data/` directory and are validated against missing files, absolute paths and directory escapes. Generated outputs under `artifacts/` are Git-ignored; keep custom outputs there too.
-
-## Package layout and loading
-
-```text
-config/experiment.yaml       # Validated central configuration
-scripts/prepare_data.py      # CLI wrapper
-src/cowbias/config.py        # Typed immutable config, validation and YAML loader
-src/cowbias/data/
-  splits.py                 # Source allocation and exact background quotas
-  generate.py               # NumPy/Pillow foregrounds, backgrounds, compositing
-  dataset.py                # CSV I/O, safe paths and inspection dataset
-  pipeline.py               # Generation, provenance, contact sheets and CLI
-  audit.py                  # Distribution, leakage, replay and pair verification
-tests/                      # Real generation, reproducibility and corruption tests
-```
-
-`ManifestDataset` provides framework-independent inspection, including optional model-size resizing:
-
-```python
-from cowbias.data.dataset import ManifestDataset
-
-data = ManifestDataset(
-    "artifacts/runs/my-stage1-run/seed_42/data",
-    split="train",
-    variant="baseline",
-    image_size=32,
-)
-sample = data[0]  # image: uint8 HWC; mask: uint8 HW; label: cow=1, non_cow=0
-```
-
-Held-out loading uses `variant="shared_eval"`. Stage 2 wraps this reader with deterministic normalization, tensor conversion and DataLoaders; it forbids model access to the test split.
-
-## Fresh remote session and Stage 2 dataset handoff
-
-Generated artifacts are disposable remote-session outputs, not files delivered by a Git clone. Regenerate them when the previous run directory is unavailable. In a fresh remote checkout, select the intended source revision and install the package:
+Python 3.11/3.12 are covered by routine CI; full acceptance uses Python 3.12. Use a clean venv.
+For original source-pixel reproduction, use the recorded dependency versions:
 
 ```bash
-git clone https://github.com/alfrzhb/cowbias-lab.git
-cd cowbias-lab
-python -m pip install -e '.[dev]'
-
-# Use a new run directory. Omit --seeds to generate all three configured seeds.
-python scripts/prepare_data.py --config config/experiment.yaml \
-  --seeds 42 --output artifacts/runs/stage2-data
-python scripts/prepare_data.py --config config/experiment.yaml \
-  --audit artifacts/runs/stage2-data/seed_42/data
-```
-
-For an implementation under review, check out its PR branch; for reproduction, use the artifact's exact source revision. Restore its configuration and the NumPy, Pillow and PyYAML versions recorded in its `run_config.json` (for example, Stage 1 verification used NumPy 2.3.5, Pillow 12.3.0 and PyYAML 6.0.3). Record the Python version too. Pinning a code commit alone does not pin dependencies. The generator version and source identities are unchanged by Stage 2.
-
-Select the run directory **and seed explicitly**; do not silently select the newest folder or mix seeds across the two models. Validate before loading. This example selects data only and performs no training:
-
-```python
-from pathlib import Path
-
-from cowbias.config import load_config
-from cowbias.data.audit import audit_dataset
-from cowbias.data.dataset import ManifestDataset
-
-config = load_config("config/experiment.yaml")
-seed = 42
-data_root = Path("artifacts/runs/stage2-data") / f"seed_{seed}" / "data"
-audit_dataset(data_root, config, seed=seed)
-
-baseline = ManifestDataset(data_root, split="train", variant="baseline",
-                           image_size=config.dataset.model_image_size)
-treatment = ManifestDataset(data_root, split="train", variant="treatment",
-                            image_size=config.dataset.model_image_size)
-validation = ManifestDataset(data_root, split="val", variant="shared_eval",
-                             image_size=config.dataset.model_image_size)
-test = ManifestDataset(data_root, split="test", variant="shared_eval",
-                       image_size=config.dataset.model_image_size)
-```
-
-An absent/incomplete directory, wrong requested seed, mismatched saved configuration, unsupported generator version/origin, invalid relative path, source/pixel mismatch or seeded assignment mismatch fails the audit. `ManifestDataset` is a lightweight reader; it does not replace this explicit pre-load audit. Preserve the parent `run_config.json` together with each seed's complete `data/` directory if moving artifacts. Keep manifests, allocation, original sources and masks together, rather than copying only composite images. Paths remain relative to `data/`.
-
-The existing output-directory refusal also applies to remote reruns: choose another run directory instead of overwriting an earlier experiment. Dataset regeneration and loading require no cloud storage, Git LFS or previous developer-machine files.
-
-## Continuous integration and visual review
-
-`.github/workflows/ci.yml` runs on PRs targeting `main`, pushes to `main`, and manual dispatch. CPU-only Python 3.11 and 3.12 jobs install CPU PyTorch and `.[ml,dev]`, run pytest (including actual generation, audit and paired optimization), run Ruff, then run the CPU smoke CLI and independent checkpoint verifier. Permissions are limited to `contents: read`; checkout does not persist credentials. Actions are pinned to stable release commits.
-
-CI uses the existing reduced integration fixture rather than generating all three full datasets per job. Successful jobs upload `dataset-review-python-3.11` and `dataset-review-python-3.12` artifacts, retained for seven days. Each contains the fixture contact sheet, audit JSON, group table and dataset configuration. Download these from the workflow run's **Artifacts** section. These are small synthetic previews with test-fixture counts, not the full experiment datasets and not a Stage 2 handoff.
-
-For full runs, review `artifacts/runs/<run_id>/seed_<seed>/data/contact_sheet.png` and `audit.json`. The existing sheet shows all four validation groups and actual paired test images, marks the experiment **SYNTHETIC**, and leaves exported sample pixels unchanged. Bulk images, masks, sources and checkpoints remain excluded from Git.
-
-## Reproducibility and limitations
-
-Use the same configuration, seed, code and dependency versions in a new output directory. Randomness uses stable SHA-256-derived independent NumPy streams; Python's randomized `hash()` is never a seed. Within the same environment, generated per-seed artifacts are byte-identical across output directories. Run IDs and run-level provenance intentionally describe each execution separately. Dependency upgrades, particularly Pillow resampling/encoding, can change pixels or PNG bytes; compare the versions recorded in `run_config.json` before reproducing an older run.
-
-Configuration rejects missing/unsupported fields, invalid labels, invalid integer sizes, non-integral quotas, missing/duplicate seeds and invalid ratios. Sizes are configurable but must preserve balanced groups; treatment remains 50:50 by design.
-
-These are small **synthetic illustrations**, not photographs. Shared drawing grammar, coat patterns and anatomy can be easier to learn than real animal identity. Good visual separation or a future successful synthetic experiment cannot establish real-world cow recognition, and source isolation does not establish generalization to unseen rendering styles. No training or model effectiveness claim is part of Stage 1.
-
-Academic context: Artificial Intelligence, Graduate Informatics, UIN Sunan Kalijaga — Task 3 (14 October 2026).
-
-## Stage 2: train and verify CNNs
-
-Install the ML extra. CPU-only wheels avoid downloading GPU dependencies:
-
-```bash
-python -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
-python -m pip install -e '.[ml,dev]'
-python -m pytest -q
-ruff check .
-
-python scripts/run_experiment.py --config config/experiment.yaml --smoke
-python scripts/run_experiment.py --config config/experiment.yaml \
-  --seeds 42 123 2026 --device cpu --output artifacts/runs/my-training-run
-python scripts/verify_checkpoints.py --run artifacts/runs/my-training-run --require-full
-```
-
-Without `--data-run`, the training runner invokes the existing Stage 1 pipeline into `<training_run>/datasets/seed_<seed>/data`. With `--data-run artifacts/runs/my-stage1-run`, it uses that explicit run and re-audits every requested seed before training. It never guesses a latest directory. Missing files, incompatible configuration/seed/generator version, leakage, altered sources, or failed deterministic assignment replay stop training. Both dataset and training outputs refuse existing output directories. Keep all outputs under the ignored `artifacts/` tree.
-
-Smoke mode generates actual images: **200 examples per training arm, 16 shared validation and 16 test composites**, one configured seed and one epoch, on CPU by default. The test composites are audited only. Smoke artifacts carry `run_kind: smoke` and fail `--require-full`; they are not six-model experimental evidence. Full mode uses the central configuration unchanged: 1,000 examples per arm, seven epochs, batch 64, AdamW at 0.001, seeds 42/123/2026. `--device` and `--threads` (default 2) control resources. Use `--help` for the CLI contract. Failures return nonzero and preserve `failure.log`, partial histories and clearly marked incomplete diagnostic states.
-
-`models/cnn.py` defines one compact network: three 3×3 Conv/ReLU/2×2 MaxPool blocks with 16/32/64 channels, adaptive 4×4 pooling, a 64-unit ReLU classifier and **one binary logit**. It uses BCEWithLogitsLoss, `cow=1`, `non_cow=0`, and threshold logit ≥ 0. No pretrained weights, external downloads, dropout or batch normalization are used. The architecture is reconstructed from primitive metadata.
-
-`training/data.py` reads only audited train/validation manifests. Pillow bilinear resizing produces RGB 32×32; float32 CHW tensors are scaled by `(pixel/255 - 0.5)/0.5` per channel. There are no flips, crops, jitter, augmentation, class reweighting or oversampling. Background labels remain metadata for validation group accounting; the CNN receives only the three image channels.
-
-For each seed, `training/experiment.py` creates one initial state and loads its cloned tensors into independent baseline and treatment instances. Every initial tensor is checked for equality and hashed. Python, NumPy, PyTorch CPU/CUDA RNGs are reset before each arm; deterministic algorithms are enabled, cuDNN benchmarking and TF32 are disabled. Independent identically seeded DataLoader generators preserve foreground minibatch membership and order. Every consumed epoch permutation is hashed and compared. Both arms use the same optimizer defaults, loss, schedule, preprocessing, record count and shared validation order. The existing audit plus `training/treatment.py` verifies identical foreground identities/order/labels and masks/geometry. The Stage 1 background assignments are the only intervention.
-
-All seven epochs run. The policy declared before training selects **highest validation worst-group accuracy**, then highest overall validation accuracy, then earliest epoch. WGA is the minimum of all four group accuracies, with every denominator required nonzero. Histories include train/validation losses and accuracy, four validation group accuracies/counts, WGA, learning rate, epoch duration and consumed foreground order hash. Validation runs in eval/inference mode and cannot update weights. The Stage 2 training module performs no test inference, test-based selection or final test analysis. Stage 3 uses a separate evaluation-only test adapter.
-
-## Training artifacts and safe reloading
-
-```text
-artifacts/runs/<training_run>/
-  run_config.json              # Requested/effective config, seed list, code hashes
-  environment.json            # Python/dependency versions, hardware, determinism
-  requirements_freeze.txt      # Environment inventory; editable path is session-specific
-  dataset_generation.yaml     # Exact configuration for regenerating source datasets
-  dataset_references.json     # Per-seed IDs, manifest/config hashes, relative references
-  training.log
-  run_status.json
-  training_summary.json
-  verification.json
-  dataset_manifests/seed_42/   # Manifest, config, source catalog/allocation, audit, sheet
-  seed_42/
-    baseline.pt
-    treatment.pt
-    baseline_history.csv
-    treatment_history.csv
-    baseline_metadata.json
-    treatment_metadata.json
-    fairness.json             # Ordered foreground/validation IDs and invariant results
-    validation_probe.npz      # Four actual validation inputs, one per group, for reload
-  seed_123/...                # Full runs only
-  seed_2026/...               # Full runs only
-  datasets/...                # Only when generated here; excluded from upload bundle
-```
-
-Metadata records run kind, seed/variant, architecture, synthetic origin, dataset run and manifest/config SHA-256, generator version, initialization hash, training/optimizer settings, selected epoch/metrics/policy, dependency/hardware versions, Git revision/dirty flag and package source hashes. Sidecars add checkpoint/history SHA-256 and the reload verification result. Plain `state_dict` tensors and JSON primitives are serialized; loading uses `weights_only=True` and strict architecture/state validation. Only load trusted bundles and verify the recorded checksum:
-
-```python
-import json
-from pathlib import Path
-from cowbias.training.checkpoint import load_checkpoint
-
-folder = Path("artifacts/runs/my-training-run/seed_42")
-meta = json.loads((folder / "baseline_metadata.json").read_text())
-model, metadata = load_checkpoint(
-    folder / "baseline.pt", expected_sha256=meta["checkpoint_sha256"],
-    expected_seed=42, expected_variant="baseline", expected_run_kind="full",
-)
-# model expects the exact documented float32 [N, 3, 32, 32] preprocessing.
-```
-
-`verify_checkpoints.py --require-full` requires completed full-mode checkpoints for every configured seed, verifies all six checksums and histories, reconstructs fresh models, checks the declared epoch-selection policy and fairness metadata, and compares finite logits against saved validation probes (`atol=1e-6`, `rtol=1e-5`). These probes let an artifact recipient verify loading without the original filesystem or any test inference.
-
-## Durable remote handoff to Stage 3
-
-`.github/workflows/full-training.yml` generates and audits all three datasets, trains all six models on CPU and verifies them independently. It runs on explicitly scoped changes pushed to `feat/stage-2-cnn-training`, enabling the initial run before the workflow exists on `main`. After merging, **Actions → Full Stage 2 training → Run workflow** supports controlled manual runs. Standard PR CI only trains small fixtures and smoke runs.
-
-Successful full runs upload **`stage2-trained-models`**, retained for **90 days**. Open [Full Stage 2 training runs](https://github.com/alfrzhb/cowbias-lab/actions/workflows/full-training.yml), select a successful run at the intended code revision, and download the artifact from **Artifacts**. The run summary contains actual validation results; check `run_status.json` and `verification.json` after downloading. A failed run can also upload diagnostics, so an artifact's existence alone does not establish success. Archive the downloaded ZIP before retention expiry if longer preservation is needed.
-
-With GitHub CLI authentication in a future remote session:
-
-```bash
-gh run download <verified-run-id> --repo alfrzhb/cowbias-lab \
-  --name stage2-trained-models --dir artifacts/runs/downloaded-stage2
-python scripts/verify_checkpoints.py --run artifacts/runs/downloaded-stage2 --require-full
-
-# Restore the recorded source commit and dependency versions first, then regenerate data.
-python scripts/prepare_data.py \
-  --config artifacts/runs/downloaded-stage2/dataset_generation.yaml \
-  --output artifacts/runs/regenerated-stage1
-```
-
-The bundle contains all six checkpoints, histories, metadata, validation probes and small Stage 1 audit/reference snapshots; bulk datasets and model binaries stay out of ordinary Git commits. A source-path reference may point to a prior remote session, so regenerate instead of assuming that path still exists. Match regenerated manifest/config hashes to `dataset_references.json` and run the Stage 1 audit before Stage 3 inference. Snapshots retain source-level hashes and allocation for independent comparison.
-
-Reproduction requires matching code, configuration, seeds and dependency environment. Dataset identities are deterministic; bitwise image encoding and trained weights can change across Pillow/NumPy/PyTorch versions or hardware, even with deterministic algorithms enabled. `requirements_freeze.txt` is an inventory, not a portable editable-project path: install this repository separately and restore dependency versions from `environment.json`. Stage 3 consumes these frozen inputs for held-out group evaluation, counterfactual predictions and explainability. Stage 2 validation evidence alone makes no final claim that the treatment mitigates background bias.
-
-## Verified Stage 2 execution
-
-The CPU experiment at source commit `881be87ef2d83100b51bfb069e1fa75097eb9688`
-completed all six seven-epoch training runs. The retained epochs below follow the
-predeclared WGA → overall accuracy → earliest epoch policy. These are **validation**
-results used for selection, not held-out test results or a final mitigation claim.
-
-- [Full training run 38827143763](https://github.com/alfrzhb/cowbias-lab/actions/runs/38827143763): SUCCESS.
-- [Download stage2-trained-models](https://github.com/alfrzhb/cowbias-lab/actions/runs/38827143763/artifacts/12015781574): 3,631,083-byte ZIP; upload and fresh download verified.
-- Artifact retention: 90 days; GitHub reports expiry **14 January 2027 at 00:02 UTC**.
-- ZIP SHA-256: `d99ae16c94d57810e7cad11d25f62be061df943202ba4b9a59d10721012597be`.
-- [Python 3.11 and 3.12 CI](https://github.com/alfrzhb/cowbias-lab/actions/runs/38827190926): **82 tests passed per job**, Ruff passed, real CPU smoke and checkpoint verification passed.
-- Downloaded bundle reverified independently: all six checkpoint/history checksums, metadata, validation-only selection, fairness controls and fresh-model validation probe predictions PASS.
-- Dataset audits: all three seeds PASS, with deterministic source/assignment replay and zero cross-split source leakage.
-- Training environment: Python 3.12.15, PyTorch 2.14.1+cpu, NumPy 2.5.4, Pillow 12.3.0, PyYAML 6.0.3; two CPU threads. Full versions and source hashes are in the bundle.
-
-| Seed | Model | Selected epoch | Validation loss | Validation accuracy | Validation WGA | Reload |
-|---|---|---:|---:|---:|---:|---|
-| 42 | baseline | 7 | 0.608923 | 0.820833 | 0.350000 | PASS |
-| 42 | treatment | 4 | 0.025483 | 0.995833 | 0.983333 | PASS |
-| 123 | baseline | 7 | 0.909820 | 0.545833 | 0.050000 | PASS |
-| 123 | treatment | 7 | 0.003250 | 1.000000 | 1.000000 | PASS |
-| 2026 | baseline | 1 | 1.840064 | 0.500000 | 0.000000 | PASS |
-| 2026 | treatment | 4 | 0.046593 | 1.000000 | 1.000000 | PASS |
-
-Seed 2026 baseline selected epoch 1 because all seven epochs tied on both WGA
-and overall accuracy; lower validation loss is deliberately not a tie-breaker.
-The treatment's observed validation scores do not establish held-out robustness.
-
-Retrieve the exact verified bundle in a new remote session:
-
-```bash
-gh run download 38827143763 --repo alfrzhb/cowbias-lab \
-  --name stage2-trained-models --dir artifacts/runs/downloaded-stage2
-python scripts/verify_checkpoints.py --run artifacts/runs/downloaded-stage2 --require-full
-```
-
-The bundle's training run ID is `stage2-full`; it is disambiguated by the Actions
-run ID and source commit above. Checkpoint files are under
-`seed_<seed>/{baseline,treatment}.pt`. Exact checkpoint SHA-256 values are in
-`verification.json`, `training_summary.json` and each model metadata sidecar.
-For Stage 3, restore the recorded source/dependencies, regenerate with
-`dataset_generation.yaml`, match manifest/config hashes, and re-audit the data
-before any held-out inference. Download before expiry for preservation beyond
-the configured Actions retention period.
-
-
-## Stage 3: scientific held-out evaluation
-
-Use Python 3.12 and the recorded CPU dependency versions. The original environment
-used Python 3.12.15; patch/hardware differences are recorded and checked with saved
-validation-probe numerical tolerances, not described as universal bitwise reproduction.
-
-```bash
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\Activate.ps1
 python -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
 python -m pip install numpy==2.5.4 Pillow==12.3.0 PyYAML==6.0.3 matplotlib==3.10.8
-python -m pip install -e '.[eval,dev]'
-python -m pytest -q
+python -m pip install -e '.[eval,ui,dev,report]'
+
+python scripts/prepare_data.py --config config/experiment.yaml --seeds 42 --output artifacts/runs/data
+python scripts/prepare_data.py --audit artifacts/runs/data/seed_42/data --config config/experiment.yaml
+python scripts/run_experiment.py --config config/experiment.yaml --smoke --device cpu --output artifacts/runs/smoke
+python scripts/verify_checkpoints.py --run artifacts/runs/smoke
+python scripts/evaluate_experiment.py --training-run artifacts/runs/smoke \
+  --data-run artifacts/runs/smoke/datasets --seeds 42 --smoke --output artifacts/runs/smoke-eval
+python scripts/verify_evaluation.py --run artifacts/runs/smoke-eval
+```
+
+Smoke results are development evidence, never replacements for the original three-seed experiment.
+For a future full replication, omit `--smoke` and use a **new** output directory; do not overwrite
+original evidence. [Reproducibility instructions](docs/reproducibility.md) distinguish the original
+full run, fresh smoke tests, and optional future replication. Every CLI implements `--help`.
+
+## CNN and fair training
+
+SmallCNN has three Conv2D/ReLU/MaxPool blocks (16/32/64 channels), adaptive 4×4 pooling,
+Linear(1024,64), ReLU and Linear(64,1): **89,249 trainable parameters**. Training is from scratch,
+AdamW (learning rate 0.001, weight decay 0.01), BCEWithLogitsLoss, batch size 64 and seven epochs.
+Preprocessing is Pillow bilinear resize, CHW float32, `(pixel/255 - 0.5)/0.5`; no augmentation.
+
+Paired arms share exact initial parameters, foreground batch permutations, budget, optimizer,
+preprocessing and validation data. Each has a fresh optimizer. Selection uses highest validation
+WGA, then highest validation overall accuracy, then earliest epoch. Verified selected epochs:
+
+| Seed | Baseline | Treatment |
+|---|---:|---:|
+| 42 | 7 | 4 |
+| 123 | 7 | 7 |
+| 2026 | 1 | 4 |
+
+This is validation-based checkpoint selection, **not Grid/Random/Bayesian/Optuna hyperparameter
+search**. Test data is inaccessible to training. `docs/task-3-report.pdf` includes the actual six
+training histories and selected epochs.
+
+## Original scientific evidence and results
+
+| Evidence | Workflow run | Artifact ID | Executed source |
+|---|---|---|---|
+| Six trained CNNs | [38827143763](https://github.com/alfrzhb/cowbias-lab/actions/runs/38827143763) | 12015781574 | `881be87ef2d83100b51bfb069e1fa75097eb9688` |
+| Held-out evaluation | [38874819983](https://github.com/alfrzhb/cowbias-lab/actions/runs/38874819983) | 12035480745 | `f4c517e64c20ed3498a656ff31dcb67bdbc5e69d` |
+| Browser review | [39140400975](https://github.com/alfrzhb/cowbias-lab/actions/runs/39140400975) | 12141178453 | `4fc877ae5350a0af9d70f6f6c9533e97276bd254` |
+
+Evaluation run: `stage3-full-38874819983-1`. Both models see the same 480 test images per seed.
+Prediction is cow when logit ≥ 0 / P(cow) ≥ 0.5. The evidence contains 2,880 predictions, 1,440
+model-specific pair evaluations, and 2,880 genuine Grad-CAM maps.
+
+| Metric, mean ± sample SD over 3 seeds (%) | Baseline | Treatment |
+|---|---:|---:|
+| Overall accuracy | 63.33 ± 19.24 | 99.51 ± 0.52 |
+| Worst-group accuracy | 18.33 ± 25.54 | 98.61 ± 1.73 |
+| Background flip rate | 73.33 ± 38.48 | 0.69 ± 0.64 |
+| Paired correctness | 26.67 ± 38.48 | 99.17 ± 0.83 |
+
+These documented values summarize the verified original `summary.json`; the report and dashboard
+load their values from artifacts. Treatment corrects 522 baseline errors and introduces one new
+error; seven treatment predictions remain wrong. [Per-seed results and limitations](docs/stage3-results.md)
+retain the observed failures. Low flipping alone is insufficient: a model can be stable and wrong.
+
+## Restore, verify, demonstrate and export
+
+Use authorized `gh` access to Actions, or obtain the exact original ZIPs through authorized GitHub
+access and run the archival script without `--download`. No credentials are committed or printed.
+
+```bash
+python scripts/archive_evidence.py --download --extract \
+  --directory artifacts/evidence --manifest artifacts/archive-manifest.json
+python scripts/verify_evaluation.py \
+  --run artifacts/evidence/stage3-scientific-results/stage3-full-38874819983-1 --require-full
+python scripts/prepare_dashboard.py --archive artifacts/evidence/stage3-scientific-results.zip
+python scripts/verify_dashboard.py \
+  --run artifacts/runs/downloaded-stage3/stage3-full-38874819983-1
+COWBIAS_EVAL_ROOT=artifacts/runs/downloaded-stage3/stage3-full-38874819983-1 \
+  streamlit run app/streamlit_app.py
+```
+
+The five tabs are Overview, Dataset Explorer, Model Comparison, Evaluation, and Explainability &
+Export. Seed and background switching preserve exact image/foreground identity. Original CSV,
+JSON and PNG downloads are byte-verified. Zero Grad-CAM remains zero with undefined attribution
+shares. Missing evidence displays an informative empty state. No training or inference runs in UI.
+
+![Actual Chromium dashboard](docs/images/dashboard-desktop.png)
+
+[Actual mobile screenshot](docs/images/dashboard-mobile.png). The original review ZIP and new
+acceptance evidence contain real three-viewport screenshots and export verification.
+
+## Reproducible academic report
+
+The tracked report is a deliverable. The exporter rejects existing output paths; to reproduce and
+compare it, use **new** paths as below. It verifies original archive bytes, every extracted member,
+six checkpoints and histories, source compatibility, evaluation arithmetic, image arrays and maps.
+
+```bash
+python scripts/export_report.py --run-id stage3-full-38874819983-1 \
+  --stage4-root artifacts/evidence/stage4-dashboard-review \
+  --output artifacts/report/task-3-report.pdf --manifest artifacts/report/evidence-manifest.json
+python scripts/verify_report.py --pdf artifacts/report/task-3-report.pdf \
+  --manifest artifacts/report/evidence-manifest.json --compare-manifest docs/evidence-manifest.json \
+  --render-dir artifacts/report/pages
+```
+
+`--run` aliases `--run-id`. `--artifact-root`, `--training-run`, `--archive-dir`, `--output` and
+`--manifest` are configurable. The optional `--stage4-root` adds the genuine screenshot; absence
+omits it, never invents one. The manifest traces every table/figure, seed, input path and hash.
+PDF checks match table cells and embedded figure pixels, validate links, text and page bounds.
+Visual inspection of every rendered page remains an explicit review step.
+
+## QA, preservation and limitations
+
+```bash
+python -m pytest -q -rs
 python -m ruff check .
-
-# Authorized gh authentication is needed for this private repository.
-# Checks workflow/artifact identity, expiry and original ZIP SHA-256 before extraction.
-python scripts/restore_stage2.py --archive artifacts/runs/stage2.zip \
-  --output artifacts/runs/downloaded-stage2
-
-# The existing Stage 2 verifier writes verification.json: verify a disposable copy
-# to preserve the exact input bundle. The evaluator does this automatically too.
-python -c "from pathlib import Path; from cowbias.evaluation.evaluator import verify_frozen_run; print(verify_frozen_run(Path('artifacts/runs/downloaded-stage2'), True))"
-
-python scripts/prepare_data.py \
-  --config artifacts/runs/downloaded-stage2/dataset_generation.yaml \
-  --seeds 42 123 2026 --output artifacts/runs/stage3-regenerated-data
-python scripts/verify_dataset_identity.py \
-  --training-run artifacts/runs/downloaded-stage2 \
-  --data-run artifacts/runs/stage3-regenerated-data --seeds 42 123 2026
-
-python scripts/evaluate_experiment.py \
-  --training-run artifacts/runs/downloaded-stage2 \
-  --bundle-archive artifacts/runs/stage2.zip \
-  --data-run artifacts/runs/stage3-regenerated-data \
-  --seeds 42 123 2026 --device cpu --output artifacts/runs/stage3-full
-python scripts/verify_evaluation.py --run artifacts/runs/stage3-full --require-full
-python scripts/summarize_evaluation.py --run artifacts/runs/stage3-full
+COWBIAS_TEST_EVIDENCE=artifacts/evidence \
+COWBIAS_TEST_FULL_RUN=artifacts/runs/downloaded-stage3/stage3-full-38874819983-1 python -m pytest -q
 ```
 
-`--bundle-archive` additionally verifies every extracted input file against the
-original archive, preserving the exact six models. Do not edit archived sidecars,
-verification files or configuration. Use a new output directory on every execution;
-existing output paths fail. `--help` documents explicit paths, seeds, device and
-smoke mode. Smoke mode requires one seed and uses actual fixture inference, with
-artifacts labeled smoke and rejected by `--require-full`. It never replaces full
-scientific findings. Routine CI runs independent fixtures and a training/evaluation
-smoke; it never downloads the full bundle.
+Routine CI tests Python 3.11/3.12 with genuine small training/evaluation, without downloading full
+archives. Tests requiring original archives are explicitly skipped there and run in the separate
+[Stage 5 acceptance workflow](.github/workflows/final-acceptance.yml): exact source checkout,
+isolated fresh-clone installation, authenticated pinned evidence recovery, all tests, dataset replay,
+smoke pipeline, Chromium, PDF generation/content comparison/rendering and review-artifact upload.
 
-The dedicated [Full Stage 3 evaluation workflow](.github/workflows/full-evaluation.yml)
-uses read-only contents/actions permissions, restores the original models, regenerates
-and checks data identity, evaluates all six models, computes Grad-CAM for all 2,880
-predictions, independently verifies results, and uploads `stage3-scientific-results`
-for 90 days. A narrowly scoped push trigger on the Stage 3 feature branch supports
-its first execution before default-branch manual dispatch is available. After merge,
-manual Actions execution is supported. Failures preserve logs and incomplete status.
+**Durable archival: PENDING.** The repository is public; no authorized access-controlled durable
+destination was available. Nothing was uploaded as public release assets. Original ZIP bytes,
+checksums and member inventories are preserved locally and recovery is scripted, but Actions
+retention (14/16 January 2027) and temporary workspaces are not permanent storage. See the exact
+limitations and archive hashes in [reproducibility.md](docs/reproducibility.md).
 
-The held-out distribution is 120 samples in each of four groups per seed. WGA is the
-minimum group accuracy. Confusion matrices use actual rows and predicted columns,
-class order `[non_cow,cow]`. Flip rate counts genuine foreground pairs whose predicted
-class changes across backgrounds. Read it together with **paired correctness** (both
-images correct), WGA and overall accuracy: a classifier can be stable and wrong.
-Disagreements explicitly distinguish corrected errors from new treatment errors.
-Cross-seed summaries use arithmetic mean and sample SD (`ddof=1`), with paired
-within-seed treatment-minus-baseline differences. Only three jointly varying data
-and initialization seeds are available; no significance claim is made.
+Results are limited to procedural cow/horse images and grass/beach. Three seeds jointly vary data
+and initialization; pair members share foreground. No confirmatory significance analysis or
+real-photo generalization was tested. Generator/compositing artifacts, mixed Grad-CAM, zero maps,
+residual errors and the new treatment error remain visible. No universal robustness claim is made.
 
-Grad-CAM targets the true class, using cow score `logit` and horse score `-logit` on
-the final convolutional ReLU. Baseline and treatment use identical images/targets.
-Every map is saved and independently peak-normalized; zero maps remain zero.
-Foreground mask shares and area-adjusted enrichment are descriptive localization
-measures. Zero-mass maps have undefined shares and explicit zero-map counts.
-Neither heatmap appearance nor foreground share alone proves causal independence.
+## References and attribution
 
-Each seed exports `predictions.csv`, `counterfactual_pairs.csv`,
-`model_disagreements.csv`, `metrics.json`, `attribution.csv`, `gradcam_examples.csv`,
-`test_inputs.npz`, model heatmap NPZs and figures A–F. Root `summary.json`/CSV contain
-per-seed results, mean/SD, paired differences and limitations. Original test RGB/mask
-arrays and model-resolution inputs are included without bulk training images.
-`source_references.json` identifies checkpoints, epochs, original artifact/source,
-data hashes, audits and training environment. `evaluation_config.json` freezes
-protocol and executed source. `evaluation_manifest.json` hashes immutable files;
-`figure_sources.json` traces plots to their saved scientific inputs.
+- Geirhos et al. (2020), [Shortcut learning in deep neural networks](https://doi.org/10.1038/s42256-020-00257-z).
+- Xiao et al. (ICLR 2021; preprint 2020), [Noise or Signal: The Role of Image Backgrounds in Object Recognition](https://arxiv.org/abs/2006.09994).
+- Sagawa et al. (ICLR 2020; preprint 2019), [Distributionally Robust Neural Networks for Group Shifts: On the Importance of Regularization for Worst-Case Generalization](https://arxiv.org/abs/1911.08731).
+- Selvaraju et al. (ICCV 2017), [Grad-CAM: Visual Explanations from Deep Networks via Gradient-Based Localization](https://doi.org/10.1109/ICCV.2017.74).
 
-Stage 4 consumes this stable schema version 1 directly after verification. It can
-show predictions, real counterfactuals, figures and saved Grad-CAM without training
-or recomputing metrics. For live Grad-CAM, restore the referenced original checkpoint
-and the identified input. See [methodology and limitations](docs/methodology.md).
-
-Download the exact successful Stage 3 artifact listed in the execution report:
-
-```bash
-gh run download <verified-stage3-actions-run-id> --repo alfrzhb/cowbias-lab \
-  --name stage3-scientific-results --dir artifacts/runs/downloaded-stage3
-# Upload contains a run directory plus the external execution/retrieval logs.
-python scripts/verify_evaluation.py \
-  --run artifacts/runs/downloaded-stage3/stage3-full-<run-id>-<attempt> --require-full
-```
-
-Preserve the ZIP before its recorded expiry for longer retention. These are synthetic
-horse/cow illustrations with two controlled backgrounds; performance on photographs
-and other species or styles remains untested. The academic PDF is intentionally not
-produced in Stage 3.
-
-
-The verified full Stage 3 run is [38874819983](https://github.com/alfrzhb/cowbias-lab/actions/runs/38874819983),
-evaluation ID `stage3-full-38874819983-1`, at source `f4c517e64c20ed3498a656ff31dcb67bdbc5e69d`.
-[Download stage3-scientific-results](https://github.com/alfrzhb/cowbias-lab/actions/runs/38874819983/artifacts/12035480745)
-(90 days; expires 14 January 2027, 08:36:30 UTC). ZIP SHA-256:
-`75b42453cde76bb6b5e7f5c1db903908b592439949a324e79f8ff17186dbb0d4`.
-All six held-out evaluations, fresh-download independent verification, 136 tests,
-Ruff and Python 3.11/3.12 CI PASS. Mean ± sample SD WGA is **18.33 ± 25.54% baseline**
-and **98.61 ± 1.73% treatment**. Treatment corrects 522 errors and introduces one new
-error. Attribution is mixed; seed 42 mean foreground share decreases and baseline
-has many zero maps. Full tables, failures, pair statistics, explanation caveats,
-provenance and all 18 gates are in the [execution report](docs/stage3-results.md).
-
-```bash
-gh run download 38874819983 --repo alfrzhb/cowbias-lab \
-  --name stage3-scientific-results --dir artifacts/runs/downloaded-stage3
-python scripts/verify_evaluation.py \
-  --run artifacts/runs/downloaded-stage3/stage3-full-38874819983-1 --require-full
-```
+There is currently **no repository LICENSE granting a general reuse license**. Dependency licenses
+remain their own. Images are procedurally generated by this repository; original work and academic
+references require attribution. The report leaves student identity unassigned. Individual
+contributions and software/AI assistance must be accurately disclosed under course rules;
+this repository does not establish that a particular student personally wrote or executed all code.

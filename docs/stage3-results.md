@@ -148,7 +148,7 @@ All 19 exported figures were checked for readable labeling, full-range axes, con
 - Fresh downloaded Stage 3 ZIP matches GitHub digest. A separate remote-session verification independently recomputed **2,880 predictions, 1,440 model-pair evaluations and 2,880 attribution rows**, checked **70 scientific files**, and returned PASS.
 - Hosted runtime exactly matches original Python 3.12.15, PyTorch 2.14.1+cpu, NumPy 2.5.4, Pillow 12.3.0 and PyYAML 6.0.3, plus Matplotlib 3.10.8; CPU, two threads, deterministic algorithms. Fresh local verification used Python 3.12.14 with the same scientific dependencies and passed source-pixel replay and all arithmetic. No universal bitwise reproduction is claimed.
 
-## I. Durable artifact handoff
+## I. Original artifact handoff (retention-limited)
 
 - Evaluation run: `stage3-full-38874819983-1`; started 2026-10-16T08:42:02.687474+00:00; completed 2026-10-16T08:42:31.426361+00:00.
 - [Full Actions run](https://github.com/alfrzhb/cowbias-lab/actions/runs/38874819983); [download scientific artifact](https://github.com/alfrzhb/cowbias-lab/actions/runs/38874819983/artifacts/12035480745), ID `12035480745`, 18,190,613 bytes.
@@ -170,7 +170,7 @@ The upload includes the named evaluation folder plus retrieval/execution logs. S
 
 - Branch: `feat/stage-3-evaluation-explainability`.
 - Evaluation implementation commit: `f4c517e64c20ed3498a656ff31dcb67bdbc5e69d`.
-- [Pull request #3](https://github.com/alfrzhb/cowbias-lab/pull/3) targets `main`. The current PR head contains subsequent reporting-only documentation. It remains **unmerged**; automatic merging is not enabled.
+- [Pull request #3](https://github.com/alfrzhb/cowbias-lab/pull/3) was independently reviewed and squash-merged into `main` as `99f31ec4b4691dafb8fe9f737fb9ec23306c6ef2`. The executed evaluation source remains the historical commit above.
 
 ## K. Completion gates
 
@@ -190,9 +190,9 @@ The upload includes the named evaluation folder plus retrieval/execution logs. S
 | 12 | Scientific figures | PASS |
 | 13 | Independent verification | PASS |
 | 14 | Reproducibility | PASS |
-| 15 | Durable artifact handoff | PASS |
+| 15 | Original artifact handoff | PASS (Actions retention only; durable archive PENDING) |
 | 16 | QA | PASS |
 | 17 | Methodology | PASS |
 | 18 | GitHub delivery | PASS |
 
-**Ready as the scientific input for Stage 4 — Streamlit Interactive Demonstration Dashboard.** The Stage 3 PR requires review and has not been merged. The findings support robustness improvement within this synthetic experiment, while the error, residual sensitivity, mixed attribution and external-validity limitations remain part of the handoff.
+**Ready as the scientific input for Stage 4 — Streamlit Interactive Demonstration Dashboard.** Stage 3 and the subsequent Stage 4 dashboard are now merged; Stage 5 is delivered for independent review. See [reproducibility.md](reproducibility.md) for the outstanding durable-archival limitation. The findings support robustness improvement within this synthetic experiment, while the error, residual sensitivity, mixed attribution and external-validity limitations remain part of the handoff.

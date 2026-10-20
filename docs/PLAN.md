@@ -324,7 +324,7 @@ predicted,prob_cow,correct
 
 **Urutan finishing:**
 
-1. Jalankan `pytest -q`, Ruff, generator smoke, training smoke, full experiment minimal tiga seed, evaluator, plot/Grad-CAM, dan smoke dashboard; catat semua perintah dan status.
+1. Jalankan `pytest -q`, Ruff, generator/audit, training dan evaluation smoke, serta smoke dashboard; catat semua perintah dan status. Untuk Stage 5, gunakan bukti full run tiga seed asli Stage 2-3 yang sudah diverifikasi; jangan retrain enam model atau mengulang full held-out evaluation hanya untuk QA.
 2. Audit sumber data dan angka: cocokan summary CSV/JSON, screenshot dashboard, tabel laporan, dan prediksi. Semua harus menunjuk run yang sama dan identitas seed yang jelas.
 3. Periksa edge cases: folder artefak hilang, CSV tidak lengkap, checkpoint mismatch, model menghasilkan satu kelas terus-menerus, grup uji kosong, gambar rusak, duplicate IDs, dan anomali leakage. Pesan kegagalan harus informatif.
 4. Susun README: overview masalah; diagram; install; quick start; contoh CLI; screenshot hasil aktual; interpretasi treatment dan WGA; batasan synthetic; licence/attribution; referensi ilmiah.
@@ -334,7 +334,7 @@ predicted,prob_cow,correct
 8. Jalankan fresh-clone check pada environment bersih atau direktori baru: install, sample generation, smoke run, dashboard. Tidak boleh membutuhkan file lokal tersembunyi milik developer.
 9. Setelah seluruh gate lulus, commit ringkas dan jelas. Push GitHub dilakukan hanya bila memang diminta pada tahap eksekusi dan akses tersedia; membuat plan **tidak** otomatis membuat repo/push.
 
-**Exit gate tahap 5:** README mengikuti kondisi aktual, PDF baru berisi hasil nyata run repo, fresh-clone demo berjalan, source dan artefak yang didistribusikan dapat ditelusuri.
+**Exit gate tahap 5:** README mengikuti kondisi aktual, PDF baru berisi hasil nyata run repo, fresh-clone demo berjalan, source dan artefak yang didistribusikan dapat ditelusuri. Implementasi Stage 5 diserahkan melalui PR untuk review independen; tidak auto-merge. Preservasi arsip durabel ditandai PENDING bila belum tersedia tujuan dengan kontrol akses yang diotorisasi. Lihat `docs/reproducibility.md` dan manifest bukti.
 
 ---
 
