@@ -25,7 +25,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ runner.temp }}/cowbias-clean
+        working-directory: ${{ github.workspace }}/../cowbias-clean
     env:
       GH_TOKEN: ${{ github.token }}
       REVIEWED_SOURCE: ${{ inputs.source_sha || github.sha }}
@@ -45,10 +45,10 @@ jobs:
         run: |
           [[ "$REVIEWED_SOURCE" =~ ^[0-9a-f]{40}$ ]]
           test "$(git rev-parse HEAD)" = "$REVIEWED_SOURCE"
-          git clone --no-local . "$RUNNER_TEMP/cowbias-clean"
-          test "$(git -C "$RUNNER_TEMP/cowbias-clean" rev-parse HEAD)" = "$REVIEWED_SOURCE"
-          python -m venv "$RUNNER_TEMP/cowbias-clean/.venv"
-          echo "$RUNNER_TEMP/cowbias-clean/.venv/bin" >> "$GITHUB_PATH"
+          git clone --no-local . "$GITHUB_WORKSPACE/../cowbias-clean"
+          test "$(git -C "$GITHUB_WORKSPACE/../cowbias-clean" rev-parse HEAD)" = "$REVIEWED_SOURCE"
+          python -m venv "$GITHUB_WORKSPACE/../cowbias-clean/.venv"
+          echo "$GITHUB_WORKSPACE/../cowbias-clean/.venv/bin" >> "$GITHUB_PATH"
       - name: Install isolated environment
         run: |
           python -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
@@ -104,7 +104,7 @@ jobs:
         with:
           name: stage5-final-review
           path: |
-            ${{ runner.temp }}/cowbias-clean/artifacts/qa/**
-            !${{ runner.temp }}/cowbias-clean/artifacts/qa/pytest-temp/**
+            ${{ github.workspace }}/../cowbias-clean/artifacts/qa/**
+            !${{ github.workspace }}/../cowbias-clean/artifacts/qa/pytest-temp/**
           if-no-files-found: error
           retention-days: 90
